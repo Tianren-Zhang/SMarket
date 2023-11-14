@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const UserRole = require('../models/User/UserRole');
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI, {
@@ -14,4 +14,20 @@ const connectDB = async () => {
     }
 };
 
-module.exports = connectDB;
+const createRoles = async () => {
+    const roles = ['Merchant', 'Customer'];
+
+    for (let role of roles) {
+        const roleExists = await UserRole.findOne({name: role});
+
+        if (!roleExists) {
+            await UserRole.create({name: role});
+        }
+    }
+};
+
+
+module.exports = {
+    connectDB,
+    createRoles
+};

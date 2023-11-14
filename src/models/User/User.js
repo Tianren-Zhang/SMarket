@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new Schema({
     username: {
         type: String,
         required: true,
@@ -19,22 +20,24 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
     role: {
-        type: String,
-        enum: ['buyer', 'merchant'],
-        default: 'buyer'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'UserRole'
     },
     createdAt: {
         type: Date,
         default: Date.now
     },
     profile: {
-        // Shared profile fields
+        
         firstName: String,
         lastName: String,
         phoneNumber: String,
         address: String,
-        // ... other common fields
     },
+    addresses: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'UserAddress'
+    }],
     store: {
         // Fields specific to merchants
         storeName: String,
@@ -45,17 +48,11 @@ const UserSchema = new mongoose.Schema({
         }],
         // ... other merchant-specific fields
     },
-    shoppingCart: {
-        // Fields specific to buyers
-        items: [{
-            item: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Item'
-            },
-            quantity: Number
-        }],
-        // ... other buyer-specific fields
-    },
+
+    shoppingCart: [{
+        type: Schema.Types.ObjectId,
+        ref: 'ShoppingCart'
+    }],
     // ... other fields as necessary
 });
 
