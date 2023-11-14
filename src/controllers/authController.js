@@ -1,19 +1,19 @@
-const User = require('../models/User');
+const User = require('../models/User/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
+    const {email, password} = req.body;
 
     try {
-        let user = await User.findOne({ email });
+        let user = await User.findOne({email});
         if (!user) {
-            return res.status(400).json({ errors: [{ msg: 'Invalid Credentials' }] });
+            return res.status(400).json({errors: [{msg: 'Invalid Credentials'}]});
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ errors: [{ msg: 'Invalid Credentials' }] });
+            return res.status(400).json({errors: [{msg: 'Invalid Credentials'}]});
         }
 
         const payload = {
@@ -25,10 +25,10 @@ exports.loginUser = async (req, res) => {
         jwt.sign(
             payload,
             process.env.JWT_SECRET,
-            { expiresIn: '5h' },
+            {expiresIn: '5h'},
             (err, token) => {
                 if (err) throw err;
-                res.json({ token });
+                res.json({token});
             }
         );
     } catch (err) {
@@ -39,9 +39,9 @@ exports.loginUser = async (req, res) => {
 
 exports.getInfo = async (req, res) => {
     try {
-        const user = await User.findById( req.user.id ).select('-password');
+        const user = await User.findById(req.user.id).select('-password');
         res.json(user);
-    } catch(err) {
+    } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
