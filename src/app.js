@@ -1,25 +1,28 @@
 var express = require('express');
-const {connectDB, createRoles} = require('./config/mongoDB');
+const mongoDB = require('./config/mongoDB');
 const chatGPTRoutes = require('./routes/chatGPTRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const app = express();
 
-connectDB();
-createRoles().then(() => {
+mongoDB.connectDB();
+mongoDB.createRoles().then(() => {
     console.log('Roles created successfully');
 }).catch((err) => {
     console.error('Error creating roles:', err);
 });
-app.use(express.json());
+app.use(express.json({extended: false}));
+
+
+app.get('/', (req, res) => res.send(`API Running!`));
 
 // GPTChat
-app.use('/chat', chatGPTRoutes);
+app.use('/api/chat', chatGPTRoutes);
 
 // Auth
-app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 
 // User
-app.use('/user', userRoutes);
+app.use('/api/user', userRoutes);
 
 module.exports = app;

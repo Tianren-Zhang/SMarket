@@ -1,4 +1,4 @@
-const UserService = require('../services/UserService');
+const userService = require('../services/userService');
 const {validationResult} = require('express-validator');
 
 exports.register = async (req, res) => {
@@ -12,8 +12,9 @@ exports.register = async (req, res) => {
     const {username, email, password, Role} = req.body;
 
     try {
-        const token = await UserService.register({username, email, password, Role});
-        res.status(201).json({token}); // Send the token to the client
+        const token = await userService.register({username, email, password, Role});
+        // Send the token to the client
+        res.status(201).json({token});
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
