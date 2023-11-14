@@ -16,9 +16,13 @@ const ShoppingCartSchema = new Schema({
             type: Number,
             required: true
         },
+        createAt: {
+            type: Date,
+            default: Date.now()
+        }
         // Other cart item attributes
     }],
-    // Other fields as necessary
+    // Other fields
 });
 
 module.exports = mongoose.model('ShoppingCart', ShoppingCartSchema);

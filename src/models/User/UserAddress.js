@@ -28,6 +28,14 @@ const userAddressSchema = new Schema({
         type: String,
         required: true
     },
+    isPrimary: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    addressType: {
+        type: String
+    }
     // Additional fields like 'isPrimary', 'addressType', etc., can be added
 });
 

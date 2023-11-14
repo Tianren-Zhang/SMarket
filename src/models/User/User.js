@@ -28,17 +28,14 @@ const UserSchema = new Schema({
         default: Date.now
     },
     profile: {
-
-        firstName: String,
-        lastName: String,
-        phoneNumber: String,
-        address: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Profile'
     },
     addresses: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'UserAddress'
     }],
-    store: {
+    store: [{
         // Fields specific to merchants
         storeName: String,
         description: String,
@@ -47,7 +44,7 @@ const UserSchema = new Schema({
             ref: 'Item'
         }],
         // ... other merchant-specific fields
-    },
+    }],
 
     shoppingCart: [{
         type: Schema.Types.ObjectId,
