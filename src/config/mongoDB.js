@@ -15,7 +15,7 @@ const connectDB = async () => {
 };
 
 const createRoles = async () => {
-    const roles = ['Merchant', 'Customer'];
+    const roles = ["Merchant", "Customer"];
 
     for (let role of roles) {
         const roleExists = await UserRole.findOne({name: role});

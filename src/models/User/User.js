@@ -19,7 +19,7 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
-    role: {
+    userRole: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'UserRole'
     },
@@ -28,7 +28,7 @@ const UserSchema = new Schema({
         default: Date.now
     },
     profile: {
-        
+
         firstName: String,
         lastName: String,
         phoneNumber: String,

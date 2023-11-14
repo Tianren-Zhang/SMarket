@@ -1,19 +1,25 @@
 const User = require('../models/User/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const UserRole = require('../models/User/UserRole');
 
-const register = async ({username, email, password}) => {
+const register = async ({username, email, password, Role}) => {
     // Check if a user with the given email already exists
     let user = await User.findOne({email});
     if (user) {
         throw new Error('User already exists');
+    }
+    const role = await UserRole.findOne({name: Role});
+    if (!role) {
+        throw new Error('Role not found');
     }
 
     // Create a new user instance
     user = new User({
         username,
         email,
-        password
+        password,
+        userRole: [role._id]
     });
 
     // Hash the password

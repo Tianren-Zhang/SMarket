@@ -9,10 +9,10 @@ exports.register = async (req, res) => {
     }
 
     // Extract details from the request body
-    const {username, email, password} = req.body;
+    const {username, email, password, Role} = req.body;
 
     try {
-        const token = await UserService.register({username, email, password});
+        const token = await UserService.register({username, email, password, Role});
         res.status(201).json({token}); // Send the token to the client
     } catch (err) {
         console.error(err.message);
