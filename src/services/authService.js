@@ -6,12 +6,12 @@ const jwt = require("jsonwebtoken");
 const login = async ({email, password}) => {
     // Check if a user with the given email is not exists
     let user = await User.findOne({email});
-    if (user) {
-        throw new Error('Invalid Credentials');
+    if (!user) {
+        return {error: 'Invalid Credentials'};
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        throw new Error('Invalid Credentials');
+        return {error: 'Invalid Credentials'};
     }
 
     const payload = {
@@ -32,7 +32,7 @@ const login = async ({email, password}) => {
             }
         );
     });
-    return token;
+    return {token};
 };
 
 module.exports = {

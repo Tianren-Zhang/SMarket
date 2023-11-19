@@ -3,6 +3,7 @@ const mongoDB = require('./config/mongoDB');
 const chatGPTRoutes = require('./routes/chatGPTRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 const app = express();
 
 mongoDB.connectDB();
@@ -24,5 +25,8 @@ app.use('/api/auth', authRoutes);
 
 // User
 app.use('/api/user', userRoutes);
+
+//Profile
+app.use('/api/profile', profileRoutes);
 
 module.exports = app;

@@ -29,12 +29,9 @@ const UserSchema = new Schema({
     },
     profile: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Profile'
+        ref: 'Profile',
+        unique: true
     },
-    addresses: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'UserAddress'
-    }],
     store: [{
         // Fields specific to merchants
         storeName: String,
@@ -48,7 +45,8 @@ const UserSchema = new Schema({
 
     shoppingCart: [{
         type: Schema.Types.ObjectId,
-        ref: 'ShoppingCart'
+        ref: 'ShoppingCart',
+        unique: true
     }],
     // ... other fields as necessary
 });
