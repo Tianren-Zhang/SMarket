@@ -29,10 +29,11 @@ const updateProfileByUserId = async (userId, profileData) => {
 };
 
 const deleteProfileByUserId = async (userId) => {
-    const profile = await Profile.findOne({user: userId});
-    if (profile) {
-        await Profile.findByIdAndDelete(profile._id);
-    }
+    // const profile = await Profile.findOne({user: userId});
+    // if (profile) {
+    //     await Profile.findByIdAndDelete(profile._id);
+    // }
+    await Profile.findOneAndDelete({user: userId});
     await User.findByIdAndUpdate(userId, {profile: null});
 };
 
