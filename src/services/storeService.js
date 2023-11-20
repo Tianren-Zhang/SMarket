@@ -17,8 +17,9 @@ const addItemToInventory = async (storeId, itemData) => {
     const newItem = new Item({store: storeId, ...itemData});
     await newItem.save();
 
-    store.inventory.push(newItem._id);
+    store.inventory.push(newItem);
     await store.save();
+    // console.log(store.inventory);
     return newItem;
 };
 
@@ -27,8 +28,9 @@ const updateItemInInventory = async (itemId, updateData) => {
 };
 
 const getStoreInfo = async (storeId) => {
-    return Store.findById(storeId).populate('owner', ['username', 'email']).populate('inventory.item');
+    return Store.findById(storeId).populate('inventory').populate('owner', ['username', 'email']);
 };
+
 
 module.exports = {
     createStore,
