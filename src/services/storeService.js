@@ -28,13 +28,30 @@ const updateItemInInventory = async (itemId, updateData) => {
 };
 
 const getStoreInfo = async (storeId) => {
-    return Store.findById(storeId).populate('inventory').populate('owner', ['username', 'email']);
+    return Store.findById(storeId).populate('inventory', ['name', 'price']).populate('owner', ['username', 'email']);
 };
 
+const deleteStore = async (storeId) => {
+    const store = await Store.findById(storeId);
+    // console.log(store.owner);
+    await Item.deleteMany({store: storeId});
+    await Store.findByIdAndDelete(storeId);
+    await User.findByIdAndUpdate(store.owner, {$pull: {store: storeId}});
+};
+
+const deleteItemFromInventory = async (itemId) => {
+    const item = await Item.findById(itemId);
+    await Store.findByIdAndUpdate(item.owner, {$pull: {inventory: itemId}});
+    // Remove the item
+    await Item.findByIdAndDelete(itemId);
+
+};
 
 module.exports = {
     createStore,
     addItemToInventory,
     updateItemInInventory,
-    getStoreInfo
+    getStoreInfo,
+    deleteStore,
+    deleteItemFromInventory
 };

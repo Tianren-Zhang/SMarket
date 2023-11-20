@@ -33,10 +33,8 @@ const StoreSchema = new Schema({
     },
 
     inventory: [{
-        item: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Item'
-        }
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Item'
     }],
 
     categories: [String],

@@ -43,3 +43,24 @@ exports.getStore = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+
+exports.deleteStore = async (req, res) => {
+    try {
+        await storeService.deleteStore(req.params.storeId);
+        res.json({msg: 'Store deleted successfully'});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.deleteItem = async (req, res) => {
+    try {
+        await storeService.deleteItemFromInventory(req.params.itemId);
+        res.json({msg: 'Item deleted successfully'});
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+};

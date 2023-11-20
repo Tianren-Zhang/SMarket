@@ -17,5 +17,10 @@ router.put('/item/:itemId', authMiddleware, storeController.updateItem);
 // Route to get store information
 router.get('/:storeId', authMiddleware, storeController.getStore);
 
+// Route to delete a store
+router.delete('/:storeId', authMiddleware, storeController.deleteStore);
+
+// Route to delete an item from a store's inventory
+router.delete('/item/:itemId', authMiddleware, storeController.deleteItem);
 
 module.exports = router;
