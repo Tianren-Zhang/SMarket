@@ -4,14 +4,16 @@ const authMiddleware = require('../middlewares/authMiddleware');
 const {body} = require('express-validator');
 const router = express.Router();
 
+const authValidationRules = [
+    body('email', 'Please include a valid email').isEmail(),
+    body('password', 'Password is required').exists()
+]
+
 // @route   POST api/auth/login
 // @desc    Authenticate user & get token
 // @access  Public
-router.post('/login', [
-        // Validation
-        body('email', 'Please include a valid email').isEmail(),
-        body('password', 'Password is required').exists()
-    ],
+router.post('/login',
+    authValidationRules,
     authController.loginUser);
 
 // @route   GET api/auth

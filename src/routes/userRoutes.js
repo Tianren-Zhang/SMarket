@@ -5,17 +5,18 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
+const userValidationRules = [
+    body('username', 'Username is required').not().isEmpty(),
+    body('email', 'Please include a valid email').isEmail(),
+    body('password', 'Password must be at least 6 characters long').isLength({min: 6})
+]
+
 // @route   POST api/user/register
 // @desc    Register user
 // @access  Public
 router.post(
     '/register',
-    [
-        // Validation
-        body('username', 'Username is required').not().isEmpty(),
-        body('email', 'Please include a valid email').isEmail(),
-        body('password', 'Password must be at least 6 characters long').isLength({min: 6})
-    ],
+    userValidationRules,
     userController.register
 );
 

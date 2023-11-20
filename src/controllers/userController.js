@@ -2,7 +2,7 @@ const userService = require('../services/userService');
 const {validationResult} = require('express-validator');
 
 exports.register = async (req, res) => {
-    // Check for validation errors
+    // validation
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({errors: errors.array()});
