@@ -46,3 +46,5 @@ const StoreSchema = new Schema({
         default: Date.now()
     }
 });
+
+module.exports = mongoose.model('Store', StoreSchema);
