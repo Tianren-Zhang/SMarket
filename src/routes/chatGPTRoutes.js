@@ -7,6 +7,7 @@ const router = express.Router();
 const ChatGPTValidationRules = [
     body('message', 'Message is required').trim().exists()
 ];
+
 // @route   POST api/chat/GPT3.5
 // @desc    Type text, get response from GPT3.5
 // @access  Private

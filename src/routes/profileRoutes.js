@@ -12,25 +12,32 @@ const profileValidationRules = [
     body('profilePicture').optional().trim().isURL().withMessage('Invalid URL for profile picture'),
 ];
 
-
-// Create a new profile
+// @route   POST api/profile/
+// @desc    Create a user profile
+// @access  Private
 router.post('/',
     authMiddleware,
     profileValidationRules,
     profileController.createProfile);
 
-// Get the current user's profile
+// @route   GET api/profile/me
+// @desc    Get a user profile
+// @access  Private
 router.get('/me',
     authMiddleware,
     profileController.getCurrentProfile);
 
-// Update the current user's profile
+// @route   PUT api/profile/
+// @desc    Update a user profile
+// @access  Private
 router.put('/',
     authMiddleware,
     profileValidationRules,
     profileController.updateProfile);
 
-// Delete the current user's profile
+// @route   DELETE api/profile/
+// @desc    Delete a user profile
+// @access  Private
 router.delete('/',
     authMiddleware,
     profileController.deleteProfile);

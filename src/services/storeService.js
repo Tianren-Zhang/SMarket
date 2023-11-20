@@ -12,6 +12,15 @@ const createStore = async (ownerId, storeData) => {
     return store;
 };
 
+const updateStore = async (storeId, updateData) => {
+    const store = await Store.findById(storeId);
+    return Store.findOneAndUpdate(
+        {owner: store.owner},
+        {$set: updateData},
+        {new: true, upsert: true}
+    ).populate('owner', ['username', 'email']);
+};
+
 const addItemToInventory = async (storeId, itemData) => {
     const store = await Store.findById(storeId);
     const newItem = new Item({store: storeId, ...itemData});
@@ -49,6 +58,7 @@ const deleteItemFromInventory = async (itemId) => {
 
 module.exports = {
     createStore,
+    updateStore,
     addItemToInventory,
     updateItemInInventory,
     getStoreInfo,

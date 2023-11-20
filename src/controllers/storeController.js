@@ -2,6 +2,11 @@ const storeService = require('../services/storeService');
 const {validationResult} = require('express-validator');
 
 exports.createStore = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
     try {
         const store = await storeService.createStore(req.user.id, req.body);
         res.json(store);
@@ -11,9 +16,32 @@ exports.createStore = async (req, res) => {
     }
 };
 
-exports.addItem = async (req, res) => {
-    const {storeId, itemId} = req.params;
+exports.updateStore = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
     try {
+        const updatedStore = await storeService.updateStore(req.params.storeId, req.body);
+        if (!updatedStore) {
+            return res.status(404).json({msg: 'Store not found'});
+        }
+        res.json(updatedStore);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.addItem = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    try {
+        const {storeId, itemId} = req.params;
         const item = await storeService.addItemToInventory(storeId, req.body);
         res.json(item);
     } catch (err) {
@@ -23,8 +51,13 @@ exports.addItem = async (req, res) => {
 };
 
 exports.updateItem = async (req, res) => {
-    const {itemId} = req.params;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
     try {
+        const {itemId} = req.params;
         const item = await storeService.updateItemInInventory(itemId, req.body);
         res.json(item);
     } catch (error) {
@@ -34,8 +67,13 @@ exports.updateItem = async (req, res) => {
 };
 
 exports.getStore = async (req, res) => {
-    const {storeId} = req.params;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
     try {
+        const {storeId} = req.params;
         const store = await storeService.getStoreInfo(storeId);
         res.json(store);
     } catch (err) {
@@ -46,6 +84,11 @@ exports.getStore = async (req, res) => {
 
 
 exports.deleteStore = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
     try {
         await storeService.deleteStore(req.params.storeId);
         res.json({msg: 'Store deleted successfully'});
@@ -56,6 +99,11 @@ exports.deleteStore = async (req, res) => {
 };
 
 exports.deleteItem = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
     try {
         await storeService.deleteItemFromInventory(req.params.itemId);
         res.json({msg: 'Item deleted successfully'});

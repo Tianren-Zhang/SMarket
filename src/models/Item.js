@@ -29,6 +29,7 @@ const ItemSchema = new Schema({
     quantity: {
         type: Number,
         required: true,
+        min: [0, 'Quantity cannot be negative'],
         default: 0,
     },
 
