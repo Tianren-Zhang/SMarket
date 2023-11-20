@@ -1,18 +1,21 @@
 const express = require('express');
-// const storeController = require('../controllers/storeController');
-// const authMiddleware = require('../middlewares/authMiddleware');
+const storeController = require('../controllers/storeController');
+const {body} = require('express-validator');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-// // Create a new store
-// router.post('/', authMiddleware, storeController.createStore);
-//
-// // Get store inventory
-// router.get('/:storeId/inventory', authMiddleware, storeController.getInventory);
-//
-// // Add item to store inventory
-// router.post('/:storeId/inventory', authMiddleware, storeController.addItemToInventory);
-//
-// // ... other store routes
+// Create a new store
+router.post('/', authMiddleware, storeController.createStore);
+
+// Route to add an item to a store's inventory
+router.post('/:storeId/item', authMiddleware, storeController.addItem);
+
+// Route to update an item in a store's inventory
+router.put('/item/:itemId', authMiddleware, storeController.updateItem);
+
+// Route to get store information
+router.get('/:storeId', authMiddleware, storeController.getStore);
+
 
 module.exports = router;

@@ -4,6 +4,7 @@ const chatGPTRoutes = require('./routes/chatGPTRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const storeRoutes = require('./routes/storeRoutes');
 const app = express();
 
 mongoDB.connectDB();
@@ -28,6 +29,9 @@ app.use('/api/user', userRoutes);
 
 //Profile
 app.use('/api/profile', profileRoutes);
+
+// Store routes
+app.use('/api/store', storeRoutes);
 
 app.use((err, req, res, next) => {
     const status = err.status || 500;

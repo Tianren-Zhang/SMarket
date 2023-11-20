@@ -11,7 +11,6 @@ exports.createProfile = async (req, res) => {
 
     try {
         const profile = await profileService.createProfile(req.user.id, req.body);
-        await User.findByIdAndUpdate(req.user.id, {profile: profile._id});
         res.json(profile);
     } catch (err) {
         console.error(err.message);

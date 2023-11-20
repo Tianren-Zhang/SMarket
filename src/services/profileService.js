@@ -9,7 +9,10 @@ const createProfile = async (userId, profileData) => {
 
 
     const profile = new Profile({user: userId, ...profileData});
-    return await profile.save();
+
+    await profile.save();
+    await User.findByIdAndUpdate(userId, {profile: profile._id});
+    return profile;
 };
 
 const getProfileByUserId = async (userId) => {
