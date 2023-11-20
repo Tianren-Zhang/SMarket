@@ -8,6 +8,7 @@ const UserSchema = new Schema({
         unique: true,
         trim: true
     },
+
     email: {
         type: String,
         required: true,
@@ -15,32 +16,32 @@ const UserSchema = new Schema({
         trim: true,
         lowercase: true
     },
+
     password: {
         type: String,
         required: true
     },
+
     userRole: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'UserRole'
     },
+
     createdAt: {
         type: Date,
         default: Date.now
     },
+
     profile: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Profile',
         unique: true
     },
+
     store: [{
-        // Fields specific to merchants
-        storeName: String,
-        description: String,
-        items: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Item'
-        }],
-        // ... other merchant-specific fields
+        type: Schema.Types.ObjectId,
+        ref: 'Store',
+        unique: true
     }],
 
     shoppingCart: [{
@@ -48,7 +49,7 @@ const UserSchema = new Schema({
         ref: 'ShoppingCart',
         unique: true
     }],
-    // ... other fields as necessary
+    // other fields
 });
 
 module.exports = mongoose.model('User', UserSchema);

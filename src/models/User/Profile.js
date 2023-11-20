@@ -10,7 +10,7 @@ const ProfileSchema = new Schema({
     },
 
     addresses: [{
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'UserAddress'
     }],
 
