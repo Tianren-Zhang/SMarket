@@ -1,9 +1,9 @@
 const AlreadyExistsError = require('../exceptions/AlreadyExistsError');
 const NotFoundError = require('../exceptions/NotFoundError');
-const User = require('../models/User/User');
+const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const UserRole = require('../models/User/UserRole');
+const UserRole = require('../models/UserRole');
 
 const register = async ({username, email, password, Role}) => {
     // Check if a user with the given email already exists

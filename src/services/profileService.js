@@ -1,8 +1,8 @@
 const UnauthorizedError = require('../exceptions/UnauthorizedError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const AlreadyExistsError = require('../exceptions/AlreadyExistsError');
-const Profile = require('../models/User/Profile');
-const User = require("../models/User/User");
+const Profile = require('../models/Profile');
+const User = require("../models/User");
 
 const createProfile = async (userId, profileData) => {
     // Check if the user exists

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const UserRole = require('../models/User/UserRole');
+const UserRole = require('../models/UserRole');
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI, {

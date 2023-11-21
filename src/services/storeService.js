@@ -3,7 +3,7 @@ const NotFoundError = require('../exceptions/NotFoundError');
 const AlreadyExistsError = require('../exceptions/AlreadyExistsError');
 const Store = require('../models/Store');
 const Item = require('../models/Item');
-const User = require("../models/User/User");
+const User = require("../models/User");
 
 const createStore = async (ownerId, storeData) => {
     const owner = await User.findById(ownerId);

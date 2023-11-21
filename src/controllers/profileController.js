@@ -1,5 +1,5 @@
 const profileService = require('../services/profileService');
-const User = require('../models/User/User');
+const User = require('../models/User');
 const {validationResult} = require('express-validator');
 
 exports.createProfile = async (req, res) => {
