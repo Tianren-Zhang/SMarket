@@ -1,3 +1,5 @@
+const AlreadyExistsError = require('../exceptions/AlreadyExistsError');
+const NotFoundError = require('../exceptions/NotFoundError');
 const User = require('../models/User/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -7,11 +9,11 @@ const register = async ({username, email, password, Role}) => {
     // Check if a user with the given email already exists
     let user = await User.findOne({email});
     if (user) {
-        throw new Error('User already exists');
+        throw new AlreadyExistsError('User already exists');
     }
     const role = await UserRole.findOne({name: Role});
     if (!role) {
-        throw new Error('Role not found');
+        throw new NotFoundError('Role not found');
     }
 
     // Create a new user instance

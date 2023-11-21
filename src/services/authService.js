@@ -6,31 +6,28 @@ const jwt = require("jsonwebtoken");
 
 
 const login = async ({email, password}) => {
-    // Check if a user with the given email is not exists
     let user = await User.findOne({email});
     if (!user) {
-        // return {error: 'Invalid Credentials'};
-        throw new NotFoundError('Invalid Credentials');
+        throw new UnauthorizedError('Invalid Credentials');
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        // return {error: 'Invalid Credentials'};
         throw new UnauthorizedError('Invalid Credentials');
 
     }
 
-    const payload = {
-        user: {
-            id: user.id
-        }
-    };
+    const payload = {user: {id: user.id}};
+
+    if (!process.env.JWT_SECRET) {
+        throw new NotFoundError('JWT Secret is not defined');
+    }
 
     // Sign the JWT and return the token
     const token = await new Promise((resolve, reject) => {
         jwt.sign(
             payload,
             process.env.JWT_SECRET,
-            {expiresIn: '5h'},
+            {expiresIn: process.env.JWT_EXPIRATION || '5h'},
             (err, token) => {
                 if (err) reject(err);
                 resolve(token);

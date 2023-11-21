@@ -1,43 +1,71 @@
+const UnauthorizedError = require('../exceptions/UnauthorizedError');
+const NotFoundError = require('../exceptions/NotFoundError');
+const AlreadyExistsError = require('../exceptions/AlreadyExistsError');
 const Profile = require('../models/User/Profile');
 const User = require("../models/User/User");
 
 const createProfile = async (userId, profileData) => {
-    const existingProfile = await Profile.findOne({user: userId});
-    if (existingProfile) {
-        throw new Error('Profile already exists');
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new NotFoundError('User not found');
     }
 
+    // Check if profile already exists
+    const existingProfile = await Profile.findOne({user: userId});
+    if (existingProfile) {
+        throw new AlreadyExistsError('Profile already exists');
+    }
 
+    // Create and save the profile
     const profile = new Profile({user: userId, ...profileData});
-
     await profile.save();
-    await User.findByIdAndUpdate(userId, {profile: profile._id});
+
+    // Link profile to the user
+    user.profile = profile._id;
+    await user.save();
+
     return profile;
 };
 
 const getProfileByUserId = async (userId) => {
-    const profile = Profile.findOne({user: userId}).populate('user', ['username', 'email']);
+    const profile = await Profile.findOne({user: userId}).populate('user', ['username', 'email']);
     if (!profile) {
-        throw new Error('Profile not found');
+        throw new NotFoundError('Profile not found');
     }
+
     return profile;
 };
 
 const updateProfileByUserId = async (userId, profileData) => {
-    return Profile.findOneAndUpdate(
+    // Check if profile exists
+    const existingProfile = await Profile.findOne({user: userId});
+    if (!existingProfile) {
+        throw new NotFoundError('Profile not found');
+    }
+
+    // Update the profile
+    const updatedProfile = await Profile.findOneAndUpdate(
         {user: userId},
         {$set: profileData},
-        {new: true, upsert: true}
+        {new: true}
     ).populate('user', ['username', 'email']);
+
+    return updatedProfile;
 };
 
 const deleteProfileByUserId = async (userId) => {
-    // const profile = await Profile.findOne({user: userId});
-    // if (profile) {
-    //     await Profile.findByIdAndDelete(profile._id);
-    // }
-    await Profile.findOneAndDelete({user: userId});
-    await User.findByIdAndUpdate(userId, {profile: null});
+    // Check if profile exists
+    const profile = await Profile.findOne({user: userId});
+    if (!profile) {
+        throw new NotFoundError('Profile not found');
+    }
+
+    // Delete the profile
+    await Profile.findByIdAndDelete(profile._id);
+
+    // Update the user's profile reference
+    await User.findByIdAndUpdate(userId, {$unset: {profile: ""}});
 };
 
 module.exports = {
