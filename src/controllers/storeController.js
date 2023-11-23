@@ -23,7 +23,7 @@ exports.updateStore = async (req, res) => {
     }
 
     try {
-        const updatedStore = await storeService.updateStore(req.params.storeId, req.body);
+        const updatedStore = await storeService.updateStore(req.params.storeId, req.user.id, req.body);
         if (!updatedStore) {
             return res.status(404).json({msg: 'Store not found'});
         }
@@ -42,7 +42,7 @@ exports.addItem = async (req, res) => {
 
     try {
         const {storeId, itemId} = req.params;
-        const item = await storeService.addItemToInventory(storeId, req.body);
+        const item = await storeService.addItemToInventory(storeId, req.user.id, req.body);
         res.json(item);
     } catch (err) {
         console.error(err.message);
@@ -58,7 +58,7 @@ exports.updateItem = async (req, res) => {
 
     try {
         const {itemId} = req.params;
-        const item = await storeService.updateItemInInventory(itemId, req.body);
+        const item = await storeService.updateItemInInventory(req.user.id, itemId, req.body);
         res.json(item);
     } catch (error) {
         console.error(error);
@@ -90,7 +90,7 @@ exports.deleteStore = async (req, res) => {
     }
 
     try {
-        await storeService.deleteStore(req.params.storeId);
+        await storeService.deleteStore(req.params.storeId, req.user.id);
         res.json({msg: 'Store deleted successfully'});
     } catch (error) {
         console.error(error);
@@ -105,7 +105,7 @@ exports.deleteItem = async (req, res) => {
     }
 
     try {
-        await storeService.deleteItemFromInventory(req.params.itemId);
+        await storeService.deleteItemFromInventory(req.params.itemId, req.user.id);
         res.json({msg: 'Item deleted successfully'});
     } catch (error) {
         console.error(error);

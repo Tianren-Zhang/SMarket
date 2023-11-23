@@ -1,6 +1,7 @@
 const express = require('express');
 const profileController = require('../controllers/profileController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const checkProfileExists = require('../middlewares/checkProfileExists');
 const {body} = require('express-validator');
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.post('/',
 // @access  Private
 router.get('/me',
     authMiddleware,
+    checkProfileExists,
     profileController.getCurrentProfile);
 
 // @route   PUT api/profile/
@@ -33,6 +35,7 @@ router.get('/me',
 router.put('/',
     authMiddleware,
     profileValidationRules,
+    checkProfileExists,
     profileController.updateProfile);
 
 // @route   DELETE api/profile/
@@ -40,6 +43,7 @@ router.put('/',
 // @access  Private
 router.delete('/',
     authMiddleware,
+    checkProfileExists,
     profileController.deleteProfile);
 
 module.exports = router;

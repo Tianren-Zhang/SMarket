@@ -6,10 +6,7 @@ const Item = require('../models/Item');
 const User = require("../models/User");
 
 const createStore = async (ownerId, storeData) => {
-    const owner = await User.findById(ownerId);
-    if (!owner) {
-        throw new NotFoundError('Owner not found');
-    }
+    const owner = await User.findById(ownerId).populate('userRole');
 
     const store = new Store({owner: ownerId, ...storeData});
     await store.save();
@@ -19,8 +16,16 @@ const createStore = async (ownerId, storeData) => {
     return store;
 };
 
-const updateStore = async (storeId, updateData) => {
+const updateStore = async (storeId, userId, updateData) => {
     const store = await Store.findById(storeId);
+    if (!store) {
+        throw new NotFoundError('Store not found');
+    }
+
+    if (store.owner.toString() !== userId) {
+        throw new UnauthorizedError('Unauthorized User');
+    }
+
     return Store.findOneAndUpdate(
         {owner: store.owner},
         {$set: updateData},
@@ -28,10 +33,14 @@ const updateStore = async (storeId, updateData) => {
     ).populate('owner', ['username', 'email']);
 };
 
-const addItemToInventory = async (storeId, itemData) => {
+const addItemToInventory = async (storeId, userId, itemData) => {
     const store = await Store.findById(storeId);
     if (!store) {
         throw new NotFoundError('Store not found');
+    }
+
+    if (store.owner.toString() !== userId) {
+        throw new UnauthorizedError('Unauthorized User');
     }
 
     const newItem = new Item({store: storeId, ...itemData});
@@ -43,11 +52,21 @@ const addItemToInventory = async (storeId, itemData) => {
     return newItem;
 };
 
-const updateItemInInventory = async (itemId, updateData) => {
-    const updatedItem = await Item.findByIdAndUpdate(itemId, updateData, {new: true});
-    if (!updatedItem) {
+const updateItemInInventory = async (userId, itemId, updateData) => {
+    // Find the item along with its associated store
+    const item = await Item.findById(itemId).populate('store');
+
+    if (!item) {
         throw new NotFoundError('Item not found');
     }
+
+    // Check if the user owns the store
+    if (item.store.owner.toString() !== userId) {
+        throw new UnauthorizedError('User does not have permission to update this item');
+    }
+
+    // Perform the update
+    const updatedItem = await Item.findByIdAndUpdate(itemId, updateData, {new: true});
     return updatedItem;
 };
 
@@ -63,21 +82,28 @@ const getStoreInfo = async (storeId) => {
 };
 
 
-const deleteStore = async (storeId) => {
+const deleteStore = async (storeId, userId) => {
     const store = await Store.findById(storeId);
     if (!store) {
         throw new NotFoundError('Store not found');
     }
+    if (store.owner.toString() !== userId) {
+        throw new UnauthorizedError('Unauthorized User');
+    }
+
     // console.log(store.owner);
     await Item.deleteMany({store: storeId});
     await Store.findByIdAndDelete(storeId);
     await User.findByIdAndUpdate(store.owner, {$pull: {store: storeId}});
 };
 
-const deleteItemFromInventory = async (itemId) => {
-    const item = await Item.findById(itemId);
+const deleteItemFromInventory = async (itemId, userId) => {
+    const item = await Item.findById(itemId).populate('store');
     if (!item) {
         throw new NotFoundError('Item not found');
+    }
+    if (item.store.owner.toString() !== userId) {
+        throw new UnauthorizedError('User does not have permission to update this item');
     }
 
     await Store.findByIdAndUpdate(item.owner, {$pull: {inventory: itemId}});

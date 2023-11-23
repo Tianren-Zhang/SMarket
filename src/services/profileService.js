@@ -29,21 +29,10 @@ const createProfile = async (userId, profileData) => {
 };
 
 const getProfileByUserId = async (userId) => {
-    const profile = await Profile.findOne({user: userId}).populate('user', ['username', 'email']);
-    if (!profile) {
-        throw new NotFoundError('Profile not found');
-    }
-
-    return profile;
+    return Profile.findOne({user: userId}).populate('user', ['username', 'email']);
 };
 
 const updateProfileByUserId = async (userId, profileData) => {
-    // Check if profile exists
-    const existingProfile = await Profile.findOne({user: userId});
-    if (!existingProfile) {
-        throw new NotFoundError('Profile not found');
-    }
-
     // Update the profile
     const updatedProfile = await Profile.findOneAndUpdate(
         {user: userId},
@@ -54,15 +43,8 @@ const updateProfileByUserId = async (userId, profileData) => {
     return updatedProfile;
 };
 
-const deleteProfileByUserId = async (userId) => {
-    // Check if profile exists
-    const profile = await Profile.findOne({user: userId});
-    if (!profile) {
-        throw new NotFoundError('Profile not found');
-    }
-
-    // Delete the profile
-    await Profile.findByIdAndDelete(profile._id);
+const deleteProfileByUserId = async (userId, userProfile) => {
+    await Profile.findByIdAndDelete(userProfile._id);
 
     // Update the user's profile reference
     await User.findByIdAndUpdate(userId, {$unset: {profile: ""}});

@@ -35,19 +35,16 @@ const UserSchema = new Schema({
     profile: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Profile',
-        unique: true
     },
 
     store: [{
         type: Schema.Types.ObjectId,
         ref: 'Store',
-        unique: true
     }],
 
     shoppingCart: [{
         type: Schema.Types.ObjectId,
         ref: 'ShoppingCart',
-        unique: true
     }],
     // other fields
 });

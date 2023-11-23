@@ -2,6 +2,9 @@ const express = require('express');
 const storeController = require('../controllers/storeController');
 const {body, param} = require('express-validator');
 const authMiddleware = require('../middlewares/authMiddleware');
+const checkItemExists = require('../middlewares/checkItemExists');
+const checkMerchantRole = require('../middlewares/checkMerchantRole');
+const checkStoreExists = require('../middlewares/checkStoreExists');
 const router = express.Router();
 
 // validation rules
@@ -33,10 +36,11 @@ const storeValidationRules = [
 router.post('/',
     authMiddleware,
     storeValidationRules,
+    checkMerchantRole,
     storeController.createStore
 );
 
-// @route   PUT api/store/
+// @route   PUT api/store/:storeId
 // @desc    Update a store information
 // @access  Private
 router.put(
@@ -44,6 +48,8 @@ router.put(
     authMiddleware,
     storeIdValidationRules,
     storeValidationRules,
+    checkMerchantRole,
+    checkStoreExists,
     storeController.updateStore
 );
 
@@ -54,6 +60,8 @@ router.post('/:storeId/item',
     authMiddleware,
     storeIdValidationRules,
     itemValidationRules,
+    checkMerchantRole,
+    checkStoreExists,
     storeController.addItem
 );
 
@@ -64,6 +72,8 @@ router.put('/item/:itemId',
     authMiddleware,
     itemIdValidationRules,
     itemValidationRules,
+    checkMerchantRole,
+    checkItemExists,
     body('images').optional().isURL().withMessage('Image must be a valid URL.'),
     storeController.updateItem
 );
@@ -77,21 +87,25 @@ router.get('/:storeId',
     storeController.getStore
 );
 
-// @route   DELETE api/store/
+// @route   DELETE api/store/:storeId
 // @desc    Delete a store
 // @access  Private
 router.delete('/:storeId',
     authMiddleware,
     storeIdValidationRules,
+    checkMerchantRole,
+    checkStoreExists,
     storeController.deleteStore
 );
 
-// @route   DELETE api/store/
+// @route   DELETE api/store/item/:itemId
 // @desc    Delete an item in a store
 // @access  Private
 router.delete('/item/:itemId',
     authMiddleware,
     itemIdValidationRules,
+    checkMerchantRole,
+    checkItemExists,
     storeController.deleteItem
 );
 

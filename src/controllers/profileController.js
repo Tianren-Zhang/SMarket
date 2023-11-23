@@ -21,9 +21,6 @@ exports.createProfile = async (req, res) => {
 exports.getCurrentProfile = async (req, res) => {
     try {
         const profile = await profileService.getProfileByUserId(req.user.id);
-        if (!profile) {
-            return res.status(404).json({msg: 'Profile not found'});
-        }
         res.json(profile);
     } catch (err) {
         console.error(err.message);
@@ -49,7 +46,7 @@ exports.updateProfile = async (req, res) => {
 
 exports.deleteProfile = async (req, res) => {
     try {
-        await profileService.deleteProfileByUserId(req.user.id);
+        await profileService.deleteProfileByUserId(req.user.id, req.user.profile);
         res.json({msg: 'Profile deleted'});
     } catch (err) {
         console.error(err.message);
