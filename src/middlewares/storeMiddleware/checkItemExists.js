@@ -1,5 +1,5 @@
-const Item = require('../models/Item'); // Assuming Item model is correctly set up
-const NotFoundError = require('../exceptions/NotFoundError');
+const Item = require('../../models/Item'); // Assuming Item model is correctly set up
+const NotFoundError = require('../../exceptions/NotFoundError');
 
 const checkItemExists = async (req, res, next) => {
     try {

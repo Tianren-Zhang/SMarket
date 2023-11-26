@@ -2,9 +2,10 @@ const express = require('express');
 const storeController = require('../controllers/storeController');
 const {body, param} = require('express-validator');
 const authMiddleware = require('../middlewares/authMiddleware');
-const checkItemExists = require('../middlewares/checkItemExists');
-const checkMerchantRole = require('../middlewares/checkMerchantRole');
-const checkStoreExists = require('../middlewares/checkStoreExists');
+const checkCategoryExists = require('../middlewares/storeMiddleware/checkCategoryExists');
+const checkItemExists = require('../middlewares/storeMiddleware/checkItemExists');
+const checkMerchantRole = require('../middlewares/storeMiddleware/checkMerchantRole');
+const checkStoreExists = require('../middlewares/storeMiddleware/checkStoreExists');
 const router = express.Router();
 
 // validation rules
@@ -20,6 +21,7 @@ const itemValidationRules = [
     body('name').notEmpty().withMessage('Item name is required.'),
     body('price').isFloat({gt: 0}).withMessage('Item price must be a positive number.'),
     body('description').optional().trim(),
+    body('category').isMongoId().withMessage('Invalid category ID.'),
 ]
 
 const storeValidationRules = [
@@ -62,6 +64,7 @@ router.post('/:storeId/item',
     itemValidationRules,
     checkMerchantRole,
     checkStoreExists,
+    checkCategoryExists,
     storeController.addItem
 );
 
@@ -75,6 +78,7 @@ router.put('/item/:itemId',
     checkMerchantRole,
     checkItemExists,
     body('images').optional().isURL().withMessage('Image must be a valid URL.'),
+    checkCategoryExists,
     storeController.updateItem
 );
 
@@ -84,6 +88,8 @@ router.put('/item/:itemId',
 router.get('/:storeId',
     authMiddleware,
     storeIdValidationRules,
+    checkMerchantRole,
+    checkStoreExists,
     storeController.getStore
 );
 

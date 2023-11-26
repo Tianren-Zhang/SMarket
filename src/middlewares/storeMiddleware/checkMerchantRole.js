@@ -1,5 +1,5 @@
-const User = require('../models/User');
-const UnauthorizedError = require('../exceptions/UnauthorizedError');
+const User = require('../../models/User');
+const UnauthorizedError = require('../../exceptions/UnauthorizedError');
 
 const checkMerchantRole = async (req, res, next) => {
     try {

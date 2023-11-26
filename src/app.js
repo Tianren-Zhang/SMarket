@@ -8,11 +8,9 @@ const storeRoutes = require('./routes/storeRoutes');
 const app = express();
 
 mongoDB.connectDB();
-mongoDB.createRoles().then(() => {
-    console.log('Roles created successfully');
-}).catch((err) => {
-    console.error('Error creating roles:', err);
-});
+mongoDB.createUserRoles();
+mongoDB.createCategories();
+mongoDB.initializeSubcategories();
 app.use(express.json({extended: false}));
 
 

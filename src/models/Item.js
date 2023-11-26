@@ -18,6 +18,12 @@ const ItemSchema = new Schema({
         required: true
     },
 
+    Category: {
+        type: Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    },
+
     description: String,
 
     // A flexible object to store item-specific details
