@@ -4,6 +4,7 @@ const {body, param} = require('express-validator');
 const authMiddleware = require('../middlewares/authMiddleware');
 const checkMerchantRole = require('../middlewares/storeMiddleware/checkMerchantRole');
 const checkStoreExists = require('../middlewares/storeMiddleware/checkStoreExists');
+const itemController = require("../controllers/itemController");
 const router = express.Router();
 
 // validation rules
@@ -20,6 +21,18 @@ const storeValidationRules = [
 
 // ************************************************** //
 // Public APIs
+
+// @route   GET api/store
+// @desc    Get all store information
+// @access  Public
+router.get('/', storeController.getAllStores);
+
+// @route   GET api/store/:storeId
+// @desc    Get a store information
+// @access  Public
+router.get('/:storeId',
+    storeIdValidationRules,
+    storeController.getStoreById);
 
 
 // ************************************************** //

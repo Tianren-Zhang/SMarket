@@ -55,9 +55,22 @@ const updateItemInInventory = async (userId, itemId, updateData) => {
     return updatedItem;
 };
 
+const getItemById = async (itemId) => {
+    const item = await Item.findById(itemId).populate('store', 'storeName').populate('category', 'name');
+    if (!item) {
+        throw new NotFoundError('Item not found');
+    }
+    return item;
+}
+
+const getItems = async () => {
+    return Item.find().populate('store', 'storeName').populate('category', 'name');
+}
+
 module.exports = {
     deleteItemFromInventory,
     addItemToInventory,
     updateItemInInventory,
-
+    getItemById,
+    getItems,
 }

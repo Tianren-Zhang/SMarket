@@ -27,6 +27,18 @@ const itemValidationRules = [
 // ************************************************** //
 // Public APIs
 
+// @route   GET api/items
+// @desc    Get all items
+// @access  Public
+router.get('/', itemController.getAllItems);
+
+// @route   GET api/items/:itemId
+// @desc    Get an item based on ID
+// @access  Public
+router.get('/:itemId',
+    itemIdValidationRules,
+    itemController.getItemById);
+
 
 // ************************************************** //
 // Private APIs

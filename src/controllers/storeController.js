@@ -66,4 +66,27 @@ exports.deleteStore = async (req, res) => {
     }
 };
 
+exports.getAllStores = async (req, res) => {
+    try {
+        const stores = await storeService.getStores();
+        res.json(stores);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.getStoreById = async (req, res) => {
+    try {
+        const store = await storeService.getStoreById(req.params.storeId)
+        res.json(store);
+    } catch (err) {
+        if (err.kind === 'ObjectId') {
+            return res.status(404).json({msg: 'Store not found'});
+        }
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
 

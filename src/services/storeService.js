@@ -48,6 +48,7 @@ const deleteStore = async (storeId, userId) => {
     const store = await Store.findById(storeId);
     if (!store) {
         throw new NotFoundError('Store not found');
+        t
     }
     if (store.owner.toString() !== userId) {
         throw new UnauthorizedError('Unauthorized User');
@@ -59,10 +60,24 @@ const deleteStore = async (storeId, userId) => {
     await User.findByIdAndUpdate(store.owner, {$pull: {store: storeId}});
 };
 
+const getStores = async () => {
+    return Store.find().populate('owner', ['username', 'email']);
+}
+
+const getStoreById = async (storeId) => {
+    const store = await Store.findById(storeId).populate('owner', ['username', 'email']);
+    if (!store) {
+        throw new NotFoundError('Store not found');
+    }
+    return store;
+}
 
 module.exports = {
     createStore,
     updateStore,
     getStoreInfo,
     deleteStore,
+    getStores,
+    getStoreById,
+
 };
