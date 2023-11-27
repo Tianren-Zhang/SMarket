@@ -18,7 +18,7 @@ const ItemSchema = new Schema({
         required: true
     },
 
-    Category: {
+    category: {
         type: Schema.Types.ObjectId,
         ref: 'Category',
         required: true

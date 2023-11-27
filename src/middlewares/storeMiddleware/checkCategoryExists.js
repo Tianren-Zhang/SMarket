@@ -1,4 +1,4 @@
-const Category = require(''); // Adjust the path according to your project structure
+const Category = require('../../models/Category');
 
 const checkCategoryExists = async (req, res, next) => {
     try {
@@ -18,3 +18,5 @@ const checkCategoryExists = async (req, res, next) => {
         return res.status(500).send('Server Error');
     }
 };
+
+module.exports = checkCategoryExists;
