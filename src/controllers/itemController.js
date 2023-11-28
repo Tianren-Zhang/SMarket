@@ -14,7 +14,7 @@ exports.addItem = async (req, res) => {
         res.json(item);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -29,8 +29,8 @@ exports.updateItem = async (req, res) => {
         const item = await itemService.updateItemInInventory(req.user.id, itemId, req.body);
         res.json(item);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Server Error');
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -44,8 +44,8 @@ exports.deleteItem = async (req, res) => {
         await itemService.deleteItemFromInventory(req.params.itemId, req.user.id);
         res.json({msg: 'Item deleted successfully'});
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Server Error');
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -53,11 +53,11 @@ exports.deleteItem = async (req, res) => {
 // Retrieve all items
 exports.getAllItems = async (req, res) => {
     try {
-        const items =
-            res.json(items);
+        const items = await itemService.getItems();
+        res.json(items);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -67,10 +67,7 @@ exports.getItemById = async (req, res) => {
         const item = await itemService.getItemById(req.params.itemId);
         res.json(item);
     } catch (err) {
-        if (err.kind === 'ObjectId') {
-            return res.status(404).json({msg: 'Item not found'});
-        }
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };

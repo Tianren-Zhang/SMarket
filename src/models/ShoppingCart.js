@@ -1,6 +1,29 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const ShoppingCartItemSchema = new Schema({
+    item: {
+        type: Schema.Types.ObjectId,
+        ref: 'Item'
+    },
+    quantity: {
+        type: Number,
+        min: 1
+    },
+
+    variant: String, // Optional, based on your requirements
+
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    },
+});
+
 const ShoppingCartSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
@@ -8,28 +31,7 @@ const ShoppingCartSchema = new Schema({
         required: true
     },
 
-    items: [{
-        item: {
-            type: Schema.Types.ObjectId,
-            ref: 'Item'
-        },
-
-        quantity: {
-            type: Number,
-            required: true
-        },
-
-        variant: String,
-
-        createAt: {
-            type: Date,
-            default: Date.now()
-        }
-        // Other cart item attributes
-    }],
-
-    // Dynamically calculated based on items
-    totalPrice: Number,
+    items: [ShoppingCartItemSchema],
 
     createdAt: {
         type: Date,
@@ -42,6 +44,13 @@ const ShoppingCartSchema = new Schema({
     },
 
     // Other fields
+});
+
+
+ShoppingCartSchema.pre('save', function (next) {
+    this.updatedAt = Date.now();
+    this.items.updatedAt = Date.now();
+    next();
 });
 
 module.exports = mongoose.model('ShoppingCart', ShoppingCartSchema);

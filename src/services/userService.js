@@ -4,6 +4,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const UserRole = require('../models/UserRole');
+const ShoppingCart = require("../models/ShoppingCart");
 
 const register = async ({username, email, password, Role}) => {
     // Check if a user with the given email already exists
@@ -28,8 +29,20 @@ const register = async ({username, email, password, Role}) => {
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
 
-    // Save the user to the database
     await user.save();
+
+    if (Role === "Customer") {
+        const emptyCart = new ShoppingCart({
+            user: user._id,
+            items: [] // An empty array, indicating an empty cart
+        });
+        await emptyCart.save();
+
+        // Link the empty cart to the user
+        user.shoppingCart = emptyCart._id;
+        await user.save();
+    }
+
 
     // Prepare the JWT payload
     const payload = {

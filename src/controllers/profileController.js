@@ -14,7 +14,7 @@ exports.createProfile = async (req, res) => {
         res.json(profile);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -24,7 +24,7 @@ exports.getCurrentProfile = async (req, res) => {
         res.json(profile);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -40,7 +40,7 @@ exports.updateProfile = async (req, res) => {
         res.json(profile);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -50,6 +50,6 @@ exports.deleteProfile = async (req, res) => {
         res.json({msg: 'Profile deleted'});
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };

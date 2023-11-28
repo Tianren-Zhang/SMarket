@@ -17,6 +17,6 @@ exports.register = async (req, res) => {
         res.status(201).json({token});
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };

@@ -25,14 +25,16 @@ const storeValidationRules = [
 // @route   GET api/store
 // @desc    Get all store information
 // @access  Public
-router.get('/', storeController.getAllStores);
+router.get('/', storeController.getAllStores
+);
 
 // @route   GET api/store/:storeId
 // @desc    Get a store information
 // @access  Public
 router.get('/:storeId',
     storeIdValidationRules,
-    storeController.getStoreById);
+    storeController.getStoreById
+);
 
 
 // ************************************************** //

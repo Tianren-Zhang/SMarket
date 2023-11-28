@@ -15,18 +15,18 @@ loginUser = async (req, res) => {
         res.status(201).json({token: result.token});
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
 getInfo = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
+        const user = await User.findById(req.user.id).select('-password').populate('store').populate('shoppingCart');
         // console.log(req);
         res.json(user);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 
 }

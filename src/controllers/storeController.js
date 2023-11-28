@@ -12,7 +12,7 @@ exports.createStore = async (req, res) => {
         res.json(store);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -29,8 +29,8 @@ exports.updateStore = async (req, res) => {
         }
         res.json(updatedStore);
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Server Error');
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -46,7 +46,7 @@ exports.getStore = async (req, res) => {
         res.json(store);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -61,8 +61,8 @@ exports.deleteStore = async (req, res) => {
         await storeService.deleteStore(req.params.storeId, req.user.id);
         res.json({msg: 'Store deleted successfully'});
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Server Error');
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -72,7 +72,7 @@ exports.getAllStores = async (req, res) => {
         res.json(stores);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 
@@ -85,7 +85,7 @@ exports.getStoreById = async (req, res) => {
             return res.status(404).json({msg: 'Store not found'});
         }
         console.error(err.message);
-        res.status(500).send('Server Error');
+        res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
 

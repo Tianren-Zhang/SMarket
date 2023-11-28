@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const storeRoutes = require('./routes/storeRoutes');
 const itemRoutes = require('./routes/itemRoutes');
+const shoppingCartRoutes = require('./routes/shoppingCartRoutes');
 const app = express();
 
 mongoDB.connectDB();
@@ -17,23 +18,26 @@ app.use(express.json({extended: false}));
 
 app.get('/', (req, res) => res.send(`API Running!`));
 
-// GPTChat
+// GPTChat routes
 app.use('/api/chat', chatGPTRoutes);
 
-// Auth
+// Auth routes
 app.use('/api/auth', authRoutes);
 
-// User
+// User routes
 app.use('/api/user', userRoutes);
 
-//Profile
+// Profile routes
 app.use('/api/profile', profileRoutes);
 
 // Store routes
 app.use('/api/store', storeRoutes);
 
-//
+// Item routes
 app.use('/api/items', itemRoutes);
+
+// Cart routes
+app.use('/api/cart', shoppingCartRoutes);
 
 app.use((err, req, res, next) => {
     const status = err.status || 500;
