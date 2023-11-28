@@ -48,7 +48,6 @@ const deleteStore = async (storeId, userId) => {
     const store = await Store.findById(storeId);
     if (!store) {
         throw new NotFoundError('Store not found');
-        t
     }
     if (store.owner.toString() !== userId) {
         throw new UnauthorizedError('Unauthorized User');
