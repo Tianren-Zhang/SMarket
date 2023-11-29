@@ -13,16 +13,7 @@ const ShoppingCartItemSchema = new Schema({
 
     variant: String, // Optional, based on your requirements
 
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    },
-});
+}, {timestamps: true});
 
 const ShoppingCartSchema = new Schema({
     user: {
@@ -33,24 +24,7 @@ const ShoppingCartSchema = new Schema({
 
     items: [ShoppingCartItemSchema],
 
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    },
-
     // Other fields
-});
-
-
-ShoppingCartSchema.pre('save', function (next) {
-    this.updatedAt = Date.now();
-    this.items.updatedAt = Date.now();
-    next();
-});
+}, {timestamps: true});
 
 module.exports = mongoose.model('ShoppingCart', ShoppingCartSchema);

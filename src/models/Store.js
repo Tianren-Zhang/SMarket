@@ -10,7 +10,8 @@ const StoreSchema = new Schema({
 
     storeName: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
     },
 
     description: String,
@@ -18,6 +19,27 @@ const StoreSchema = new Schema({
     logo: String, // URL to the store's logo
 
     bannerImage: String, // URL to the store's banner image
+
+    address: {
+        state: String,
+        country: String
+    },
+
+    contact: {
+        email: String,
+        phone: String
+    },
+
+    socialMedia: {
+        facebook: String,
+        twitter: String,
+        instagram: String
+    },
+
+    averageRating: {
+        type: Number,
+        default: 0
+    },
 
     ratings: [{
         rating: Number,
@@ -37,12 +59,14 @@ const StoreSchema = new Schema({
         ref: 'Item'
     }],
 
+    status: {
+        type: String,
+        enum: ['active', 'maintenance', 'closed'],
+        default: 'active'
+    },
+
     categories: [String],
 
-    createAt: {
-        type: Date,
-        default: Date.now()
-    }
-});
+}, {timestamps: true});
 
 module.exports = mongoose.model('Store', StoreSchema);

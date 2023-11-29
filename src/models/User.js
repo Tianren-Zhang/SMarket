@@ -17,6 +17,11 @@ const UserSchema = new Schema({
         lowercase: true
     },
 
+    emailVerified: {
+        type: Boolean,
+        default: false
+    },
+
     password: {
         type: String,
         required: true
@@ -25,11 +30,6 @@ const UserSchema = new Schema({
     userRole: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'UserRole'
-    },
-
-    createdAt: {
-        type: Date,
-        default: Date.now
     },
 
     profile: {
@@ -47,6 +47,6 @@ const UserSchema = new Schema({
         ref: 'ShoppingCart',
     }],
     // other fields
-});
+}, {timestamps: true});
 
 module.exports = mongoose.model('User', UserSchema);

@@ -14,37 +14,61 @@ const ProfileSchema = new Schema({
         ref: 'UserAddress'
     }],
 
-    firstName: String,
+    firstName: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 50
+    },
 
-    lastName: String,
+    lastName: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 50
+    },
 
-    phoneNumber: String,
+    phoneNumber: {
+        type: String,
+        trim: true,
+        validate: {
+            validator: function (v) {
+                return /\d{3}-\d{3}-\d{4}/.test(v);
+            },
+            message: props => `${props.value} is not a valid phone number!`
+        }
+    },
 
     profilePicture: String,
 
     dateOfBirth: Date,
 
-    createdAt: {
-        type: Date,
-        default: Date.now
+    socialMedia: {
+        facebook: String,
+        twitter: String,
+        instagram: String
+        // ... other platforms ...
     },
 
-    updatedAt: {
-        type: Date,
-        default: Date.now
+    isDeleted: {
+        type: Boolean,
+        default: false
     },
 
-});
-// Pre-save hook to handle 'updatedAt'
-ProfileSchema.pre('save', function (next) {
-    this.updatedAt = Date.now();
-    next();
-});
+    deletedAt: Date
 
-// Pre-update hook to handle 'updatedAt'
-ProfileSchema.pre(['findOneAndUpdate', 'updateOne'], function (next) {
-    this.set({updatedAt: Date.now()});
-    next();
-});
+}, {timestamps: true});
+
+ProfileSchema.index({firstName: 1, lastName: 1, phoneNumber: 1});
+
+ProfileSchema.methods.calculateCompleteness = function () {
+    let fieldsFilled = 0;
+    let totalFields = 0;
+    for (let field in this.schema.paths) {
+        if (this[field]) fieldsFilled++;
+        totalFields++;
+    }
+    return (fieldsFilled / totalFields) * 100;
+};
 
 module.exports = mongoose.model('Profile', ProfileSchema);

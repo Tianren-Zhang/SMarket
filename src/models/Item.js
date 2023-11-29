@@ -30,7 +30,11 @@ const ItemSchema = new Schema({
     specifications: {},
 
     // URLs to images of the item
-    images: [String],
+    images: [{
+        url: String,
+        altText: String
+    }],
+
 
     quantity: {
         type: Number,
@@ -39,7 +43,40 @@ const ItemSchema = new Schema({
         default: 0,
     },
 
-    // Additional fields
+    sku: {
+        type: String,
+        required: true,
+        unique: true
+    },
+
+    ratings: {
+        average: {type: Number, default: 0},
+        count: {type: Number, default: 0}
+    },
+
+    reviews: [{
+        user: {type: Schema.Types.ObjectId, ref: 'User'},
+        review: String,
+        rating: Number,
+        createdAt: {type: Date, default: Date.now}
+    }],
+
+    //Search Engine Optimization
+    seo: {
+        metaTitle: String,
+        metaDescription: String
+    },
+
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+
+}, {timestamps: true});
+
+ItemSchema.pre('save', function (next) {
+    this.updatedAt = Date.now();
+    next();
 });
 
 module.exports = mongoose.model('Item', ItemSchema);
