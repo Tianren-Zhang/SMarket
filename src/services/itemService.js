@@ -64,7 +64,11 @@ const getItemById = async (itemId) => {
 }
 
 const getItems = async () => {
-    return Item.find().populate('store', 'storeName').populate('category', 'name');
+    const items = await Item.find().populate('store', 'storeName');//.populate('category', 'name');
+    // items.forEach(item => {
+    //     console.log(item.images);  // Log the images array
+    // });
+    return items;
 }
 
 module.exports = {

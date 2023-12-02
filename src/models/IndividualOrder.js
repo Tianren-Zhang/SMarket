@@ -14,24 +14,18 @@ const IndividualOrderSchema = new Schema({
             ref: 'Item',
             required: true
         },
-        itemName: String,
-        itemDescription: String,
-        itemSKU: String,
         quantity: {type: Number, min: 1},
         price: Number, // Price per item
         discount: Number, // Optional discount per item
-        // Calculate subtotal for item
-        get subtotal() {
-            return (this.quantity * this.price) - (this.discount || 0);
-        }
     }],
 
     orderAmount: {
         type: Number,
-        // Calculate total order amount
-        default: function () {
-            return this.items.reduce((total, item) => total + item.subtotal, 0);
-        }
+    },
+
+    totalQuantity: {
+        type: Number,
+        required: true
     },
 
     status: {
@@ -44,7 +38,23 @@ const IndividualOrderSchema = new Schema({
         address: String,
         method: String,
         estimatedDeliveryDate: Date
-    }
+    },
+
+    paymentDetails: {
+        isPaid: Boolean,
+        paymentMethod: String
+    },
+
+    // orderConfirmationNumber: {
+    //     type: String,
+    //     unique: true
+    // },
+
+    orderHistory: [{
+        status: String,
+        date: Date
+    }],
+
 }, {timestamps: true});
 
 module.exports = mongoose.model('IndividualOrder', IndividualOrderSchema);

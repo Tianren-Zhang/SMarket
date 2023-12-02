@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const ItemVariantSchema = new Schema({
+    variantType: String, // e.g., 'Color', 'Storage'
+    variantValue: String // e.g., 'Black', '256GB'
+});
+
 const ItemSchema = new Schema({
     store: {
         type: Schema.Types.ObjectId,
@@ -27,7 +32,7 @@ const ItemSchema = new Schema({
     description: String,
 
     // A flexible object to store item-specific details
-    specifications: {},
+    variants: [ItemVariantSchema],
 
     // URLs to images of the item
     images: [{
@@ -43,11 +48,11 @@ const ItemSchema = new Schema({
         default: 0,
     },
 
-    sku: {
-        type: String,
-        required: true,
-        unique: true
-    },
+    // sku: {
+    //     type: String,
+    //     required: true,
+    //     unique: true
+    // },
 
     ratings: {
         average: {type: Number, default: 0},
@@ -73,11 +78,6 @@ const ItemSchema = new Schema({
     },
 
 }, {timestamps: true});
-
-ItemSchema.pre('save', function (next) {
-    this.updatedAt = Date.now();
-    next();
-});
 
 module.exports = mongoose.model('Item', ItemSchema);
 

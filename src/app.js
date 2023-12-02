@@ -7,6 +7,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const storeRoutes = require('./routes/storeRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const shoppingCartRoutes = require('./routes/shoppingCartRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 const app = express();
 
 mongoDB.connectDB();
@@ -38,6 +39,9 @@ app.use('/api/items', itemRoutes);
 
 // Cart routes
 app.use('/api/cart', shoppingCartRoutes);
+
+// Order routes
+app.use('/api/order', orderRoutes);
 
 app.use((err, req, res, next) => {
     const status = err.status || 500;

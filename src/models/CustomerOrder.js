@@ -15,10 +15,6 @@ const CustomerOrderSchema = new Schema({
 
     totalAmount: {
         type: Number,
-        // Calculate the total amount dynamically from individual orders
-        default: function () {
-            return this.individualOrders.reduce((total, order) => total + order.orderAmount, 0);
-        }
     },
 
     orderDate: {
@@ -41,10 +37,7 @@ const CustomerOrderSchema = new Schema({
     },
 
     orderConfirmationNumber: String,
-    orderHistory: [{
-        status: String,
-        date: Date
-    }],
+
 
     customerContact: {
         email: String,
