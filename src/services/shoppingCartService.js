@@ -37,7 +37,7 @@ exports.getUserCart = async (userId) => {
 exports.updateCartItem = async (itemId, userId, quantity) => {
     const item = await Item.findById(itemId);
     if (!item) {
-        throw new NotFoundError('Item not found   a');
+        throw new NotFoundError('Item not found');
     }
 
     const cart = await ShoppingCart.findOne({user: userId});

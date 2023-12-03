@@ -3,12 +3,6 @@ const User = require('../models/User');
 const {validationResult} = require('express-validator');
 
 exports.createProfile = async (req, res) => {
-    // validation
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
-    }
-
     try {
         const profile = await profileService.createProfile(req.user.id, req.body);
         res.json(profile);
@@ -29,15 +23,40 @@ exports.getCurrentProfile = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
-    // validation
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
-    }
-
     try {
         const profile = await profileService.updateProfileByUserId(req.user.id, req.body);
         res.json(profile);
+    } catch (err) {
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
+    }
+};
+
+exports.addAddress = async (req, res) => {
+    try {
+        const profile = await profileService.addAddress(req.user.id, req.body);
+        res.json(profile);
+    } catch (err) {
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
+    }
+};
+
+exports.updateAddress = async (req, res) => {
+    try {
+        console.log(req.params.addressId);
+        const profile = await profileService.updateAddressById(req.user.id, req.params.addressId, req.body);
+        res.json(profile);
+    } catch (err) {
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
+    }
+};
+
+exports.deleteAddress = async (req, res) => {
+    try {
+        await profileService.deleteAddressById(req.user.id, req.params.addressId);
+        res.json({msg: 'Address deleted'});
     } catch (err) {
         console.error(err.message);
         res.status(err.status || 500).send(err.message || 'Server Error');

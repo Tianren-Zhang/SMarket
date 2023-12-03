@@ -41,8 +41,12 @@ const userAddressSchema = new Schema({
 
     addressType: {
         type: String
-    }
-    // Additional fields
+    },
+
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
 });
 
 const UserAddress = mongoose.model('UserAddress', userAddressSchema);

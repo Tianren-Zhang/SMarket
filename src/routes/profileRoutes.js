@@ -2,6 +2,7 @@ const express = require('express');
 const profileController = require('../controllers/profileController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const checkProfileExists = require('../middlewares/checkProfileExists');
+const validateAddress = require('../middlewares/validateAddress');
 const validateAll = require('../middlewares/validate');
 const {body} = require('express-validator');
 
@@ -23,7 +24,8 @@ router.post('/',
     authMiddleware,
     profileValidationRules,
     validateAll,
-    profileController.createProfile);
+    profileController.createProfile
+);
 
 // @route   GET api/profile/me
 // @desc    Get a user profile
@@ -32,7 +34,8 @@ router.get('/me',
     authMiddleware,
     checkProfileExists,
     validateAll,
-    profileController.getCurrentProfile);
+    profileController.getCurrentProfile
+);
 
 // @route   PUT api/profile/
 // @desc    Update a user profile
@@ -42,7 +45,40 @@ router.put('/',
     profileValidationRules,
     checkProfileExists,
     validateAll,
-    profileController.updateProfile);
+    profileController.updateProfile
+);
+
+// @route   POST api/profile/address
+// @desc    Add a user address
+// @access  Private
+router.post('/address',
+    authMiddleware,
+    checkProfileExists,
+    validateAddress(),
+    validateAll,
+    profileController.addAddress
+);
+
+// @route   PUT api/profile/address/:addressId
+// @desc    Update a user address
+// @access  Private
+router.put('/address/:addressId',
+    authMiddleware,
+    checkProfileExists,
+    validateAddress(true),
+    validateAll,
+    profileController.updateAddress
+);
+
+// @route   DELETE api/profile/
+// @desc    Delete an address
+// @access  Private
+router.delete('/address/:addressId',
+    authMiddleware,
+    checkProfileExists,
+    validateAll,
+    profileController.deleteAddress
+);
 
 // @route   DELETE api/profile/
 // @desc    Delete a user profile
@@ -51,6 +87,7 @@ router.delete('/',
     authMiddleware,
     checkProfileExists,
     validateAll,
-    profileController.deleteProfile);
+    profileController.deleteProfile
+);
 
 module.exports = router;
