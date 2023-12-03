@@ -6,12 +6,6 @@ const openai = new OpenAI({
 });
 
 exports.getChatResponse = async (req, res) => {
-    // validation
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
-    }
-
     const userMessage = req.body.message;
     try {
         const openaiResponse = await openai.chat.completions.create({

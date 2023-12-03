@@ -3,11 +3,6 @@ const {validationResult} = require("express-validator");
 const itemService = require("../services/itemService");
 
 exports.addItem = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
-    }
-
     try {
         const {storeId, itemId} = req.params;
         const item = await itemService.addItemToInventory(storeId, req.user.id, req.body);
@@ -19,11 +14,6 @@ exports.addItem = async (req, res) => {
 };
 
 exports.updateItem = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
-    }
-
     try {
         const {itemId} = req.params;
         const item = await itemService.updateItemInInventory(req.user.id, itemId, req.body);
@@ -35,11 +25,6 @@ exports.updateItem = async (req, res) => {
 };
 
 exports.deleteItem = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
-    }
-
     try {
         await itemService.deleteItemFromInventory(req.params.itemId, req.user.id);
         res.json({msg: 'Item deleted successfully'});

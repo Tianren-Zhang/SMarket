@@ -2,6 +2,7 @@ const express = require('express');
 const profileController = require('../controllers/profileController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const checkProfileExists = require('../middlewares/checkProfileExists');
+const validateAll = require('../middlewares/validate');
 const {body} = require('express-validator');
 
 const router = express.Router();
@@ -13,12 +14,15 @@ const profileValidationRules = [
     body('profilePicture').optional().trim().isURL().withMessage('Invalid URL for profile picture'),
 ];
 
+// **********************  Private APIs  **************************** //
+
 // @route   POST api/profile/
 // @desc    Create a user profile
 // @access  Private
 router.post('/',
     authMiddleware,
     profileValidationRules,
+    validateAll,
     profileController.createProfile);
 
 // @route   GET api/profile/me
@@ -27,6 +31,7 @@ router.post('/',
 router.get('/me',
     authMiddleware,
     checkProfileExists,
+    validateAll,
     profileController.getCurrentProfile);
 
 // @route   PUT api/profile/
@@ -36,6 +41,7 @@ router.put('/',
     authMiddleware,
     profileValidationRules,
     checkProfileExists,
+    validateAll,
     profileController.updateProfile);
 
 // @route   DELETE api/profile/
@@ -44,6 +50,7 @@ router.put('/',
 router.delete('/',
     authMiddleware,
     checkProfileExists,
+    validateAll,
     profileController.deleteProfile);
 
 module.exports = router;

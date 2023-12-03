@@ -1,6 +1,7 @@
 const express = require('express');
 const chatGPTController = require('../controllers/chatGPTController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const validateAll = require('../middlewares/validate');
 const {body} = require('express-validator');
 const router = express.Router();
 
@@ -14,6 +15,7 @@ const ChatGPTValidationRules = [
 router.post('/GPT3.5',
     authMiddleware,
     ChatGPTValidationRules,
+    validateAll,
     chatGPTController.getChatResponse);
 
 module.exports = router;

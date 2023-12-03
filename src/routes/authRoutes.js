@@ -1,6 +1,7 @@
 const express = require('express');
 const authController = require('../controllers/authController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const validateAll = require('../middlewares/validate');
 const {body} = require('express-validator');
 const router = express.Router();
 
@@ -14,12 +15,18 @@ const authValidationRules = [
 // @access  Public
 router.post('/login',
     authValidationRules,
-    authController.loginUser);
+    validateAll,
+    authController.loginUser
+);
 
 // @route   GET api/auth
 // @desc    Get information of the user
 // @access  Private
-router.get('/', authMiddleware, authController.getInfo);
+router.get('/',
+    authMiddleware,
+    validateAll,
+    authController.getInfo
+);
 
 
 module.exports = router;

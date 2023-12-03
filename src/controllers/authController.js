@@ -2,13 +2,7 @@ const User = require('../models/User');
 const authService = require('../services/authService')
 const {validationResult} = require('express-validator');
 
-loginUser = async (req, res) => {
-    // validation
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({errors: errors.array()});
-    }
-
+exports.loginUser = async (req, res) => {
     const {email, password} = req.body;
     try {
         const result = await authService.login({email, password});
@@ -19,7 +13,7 @@ loginUser = async (req, res) => {
     }
 };
 
-getInfo = async (req, res) => {
+exports.getInfo = async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password').populate('store').populate('shoppingCart');
         // console.log(req);
@@ -28,9 +22,4 @@ getInfo = async (req, res) => {
         console.error(err.message);
         res.status(err.status || 500).send(err.message || 'Server Error');
     }
-
 }
-module.exports = {
-    getInfo,
-    loginUser
-};

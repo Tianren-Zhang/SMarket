@@ -4,7 +4,7 @@ const {body, param} = require('express-validator');
 const authMiddleware = require('../middlewares/authMiddleware');
 const checkMerchantRole = require('../middlewares/storeMiddleware/checkMerchantRole');
 const checkStoreExists = require('../middlewares/storeMiddleware/checkStoreExists');
-const itemController = require("../controllers/itemController");
+const validateAll = require('../middlewares/validate');
 const router = express.Router();
 
 // validation rules
@@ -19,8 +19,7 @@ const storeValidationRules = [
     body('bannerImage').optional().isURL().withMessage('Banner image must be a valid URL.'),
 ]
 
-// ************************************************** //
-// Public APIs
+// **********************  Public APIs  **************************** //
 
 // @route   GET api/store
 // @desc    Get all store information
@@ -33,12 +32,12 @@ router.get('/', storeController.getAllStores
 // @access  Public
 router.get('/:storeId',
     storeIdValidationRules,
+    validateAll,
     storeController.getStoreById
 );
 
 
-// ************************************************** //
-// Private APIs
+// **********************  Private APIs  **************************** //
 
 // @route   POST api/store/
 // @desc    Create a store
@@ -47,6 +46,7 @@ router.post('/',
     authMiddleware,
     storeValidationRules,
     checkMerchantRole,
+    validateAll,
     storeController.createStore
 );
 
@@ -60,6 +60,7 @@ router.put(
     storeValidationRules,
     checkMerchantRole,
     checkStoreExists,
+    validateAll,
     storeController.updateStore
 );
 
@@ -71,6 +72,7 @@ router.get('/:storeId',
     storeIdValidationRules,
     checkMerchantRole,
     checkStoreExists,
+    validateAll,
     storeController.getStore
 );
 
@@ -82,6 +84,7 @@ router.delete('/:storeId',
     storeIdValidationRules,
     checkMerchantRole,
     checkStoreExists,
+    validateAll,
     storeController.deleteStore
 );
 

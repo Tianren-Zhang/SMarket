@@ -1,11 +1,12 @@
 const express = require('express');
-const itemController = require('../controllers/itemController');
-const {body, param} = require('express-validator');
 const authMiddleware = require('../middlewares/authMiddleware');
 const checkCategoryExists = require('../middlewares/storeMiddleware/checkCategoryExists');
 const checkItemExists = require('../middlewares/storeMiddleware/checkItemExists');
 const checkMerchantRole = require('../middlewares/storeMiddleware/checkMerchantRole');
 const checkStoreExists = require('../middlewares/storeMiddleware/checkStoreExists');
+const validateAll = require('../middlewares/validate');
+const itemController = require('../controllers/itemController');
+const {body, param} = require('express-validator');
 const router = express.Router();
 
 
@@ -24,8 +25,7 @@ const itemValidationRules = [
     body('description').optional().trim(),
     body('category').isMongoId().withMessage('Invalid category ID.'),
 ]
-// ************************************************** //
-// Public APIs
+// **********************  Public APIs  **************************** //
 
 // @route   GET api/items
 // @desc    Get all items
@@ -37,11 +37,12 @@ router.get('/', itemController.getAllItems);
 // @access  Public
 router.get('/:itemId',
     itemIdValidationRules,
-    itemController.getItemById);
+    validateAll,
+    itemController.getItemById
+);
 
 
-// ************************************************** //
-// Private APIs
+// **********************  Private APIs  **************************** //
 
 // @route   POST api/items/:storeId
 // @desc    Add an item into a store
@@ -53,6 +54,7 @@ router.post('/:storeId',
     checkMerchantRole,
     checkStoreExists,
     checkCategoryExists,
+    validateAll,
     itemController.addItem
 );
 
@@ -69,6 +71,7 @@ router.put('/:itemId',
     checkMerchantRole,
     checkItemExists,
     body('images').optional().isURL().withMessage('Image must be a valid URL.'),
+    validateAll,
     itemController.updateItem
 );
 
@@ -80,6 +83,7 @@ router.delete('/:itemId',
     itemIdValidationRules,
     checkMerchantRole,
     checkItemExists,
+    validateAll,
     itemController.deleteItem
 );
 
