@@ -77,7 +77,7 @@ const updateProfileByUserId = async (userId, profileData) => {
 
 const addAddress = async (userId, addressData) => {
     // Update the profile
-    const updatedProfile = await Profile.findOne({user: userId});
+    const updatedProfile = await Profile.findOne({user: userId, isDeleted: false});
     const address = new UserAddress({user: userId, ...addressData});
     updatedProfile.addresses.push(address._id);
     await address.save();
@@ -87,7 +87,7 @@ const addAddress = async (userId, addressData) => {
 
 const updateAddressById = async (userId, addressId, addressData) => {
     // Update the profile
-    const updatedProfile = await Profile.findOne({user: userId});
+    const updatedProfile = await Profile.findOne({user: userId, isDeleted: false});
     if (!updatedProfile) {
         throw new NotFoundError('User profile not found');
     }
@@ -111,7 +111,7 @@ const updateAddressById = async (userId, addressId, addressData) => {
 };
 
 const deleteAddressById = async (userId, addressId) => {
-    const profile = await Profile.findOne({user: userId});
+    const profile = await Profile.findOne({user: userId, isDeleted: false});
     if (!profile) {
         throw new NotFoundError('User profile not found');
     }
@@ -128,8 +128,15 @@ const deleteAddressById = async (userId, addressId) => {
     await profile.save();
 };
 
-const deleteProfileByUserId = async (userId, userProfile) => {
-    await Profile.findByIdAndUpdate(userProfile._id, {$unset: {isDelete: true}});
+const deleteProfileByUserId = async (userId) => {
+    // Find the profile to ensure it exists and is not already deleted
+    const profile = await Profile.findOne({user: userId, isDeleted: false});
+    if (!profile) {
+        throw new NotFoundError('User profile not found');
+    }
+
+    // Soft delete the profile by setting isDeleted to true
+    await Profile.findOneAndUpdate({user: userId}, {$set: {isDeleted: true}});
 
     // Update the user's profile reference
     await User.findByIdAndUpdate(userId, {$unset: {profile: ""}});
