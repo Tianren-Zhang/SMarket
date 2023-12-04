@@ -139,7 +139,7 @@ const deleteProfileByUserId = async (userId) => {
     await Profile.findOneAndUpdate({user: userId}, {$set: {isDeleted: true}});
 
     // Update the user's profile reference
-    await User.findByIdAndUpdate(userId, {$unset: {profile: ""}});
+    await User.findByIdAndUpdate(userId, {$unset: {profile: "", deleteAt: Date.now()}});
 };
 
 module.exports = {
