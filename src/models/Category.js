@@ -14,7 +14,13 @@ const CategorySchema = new Schema({
     subCategories: [{
         type: Schema.Types.ObjectId,
         ref: 'Category'
-    }]
-});
+    }],
+
+    images: {
+        url: String,
+        altText: String
+    },
+
+}, {timestamps: true});
 
 module.exports = mongoose.model('Category', CategorySchema);

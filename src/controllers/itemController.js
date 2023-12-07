@@ -4,7 +4,7 @@ const itemService = require("../services/itemService");
 
 exports.addItem = async (req, res) => {
     try {
-        const {storeId, itemId} = req.params;
+        const {storeId} = req.params;
         const item = await itemService.addItemToInventory(storeId, req.user.id, req.body);
         res.json(item);
     } catch (err) {
@@ -18,7 +18,7 @@ exports.updateItem = async (req, res) => {
         const {itemId} = req.params;
         const item = await itemService.updateItemInInventory(req.user.id, itemId, req.body);
         res.json(item);
-    } catch (error) {
+    } catch (err) {
         console.error(err.message);
         res.status(err.status || 500).send(err.message || 'Server Error');
     }
@@ -56,3 +56,17 @@ exports.getItemById = async (req, res) => {
         res.status(err.status || 500).send(err.message || 'Server Error');
     }
 };
+
+exports.searchByQuery = async (req, res) => {
+    try {
+        const itemData = await itemService.searchByQuery(req.query);
+        res.status(200).json({
+            success: true,
+            message: 'Items fetched successfully',
+            data: itemData
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
+    }
+}

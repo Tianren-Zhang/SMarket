@@ -29,6 +29,11 @@ const ItemSchema = new Schema({
         required: true
     },
 
+    storeCategory: {
+        type: Schema.Types.ObjectId,
+        ref: 'storeCategory',
+    },
+
     description: String,
 
     // A flexible object to store item-specific details
@@ -78,6 +83,8 @@ const ItemSchema = new Schema({
     },
 
 }, {timestamps: true});
+
+ItemSchema.index({name: 'text', description: 'text'});
 
 module.exports = mongoose.model('Item', ItemSchema);
 

@@ -46,6 +46,13 @@ const UserSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'ShoppingCart',
     }],
+
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+
+    deletedAt: Date
     // other fields
 }, {timestamps: true});
 

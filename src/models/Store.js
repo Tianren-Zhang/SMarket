@@ -14,6 +14,12 @@ const StoreSchema = new Schema({
         unique: true,
     },
 
+    categories: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'storeCategory',
+        required: true
+    },
+
     description: String,
 
     logo: String, // URL to the store's logo
@@ -65,8 +71,8 @@ const StoreSchema = new Schema({
         default: 'active'
     },
 
-    categories: [String],
-
 }, {timestamps: true});
+
+StoreSchema.index({name: 'text', description: 'text'});
 
 module.exports = mongoose.model('Store', StoreSchema);

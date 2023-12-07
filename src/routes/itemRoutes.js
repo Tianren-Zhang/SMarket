@@ -30,7 +30,9 @@ const itemValidationRules = [
 // @route   GET api/items
 // @desc    Get all items
 // @access  Public
-router.get('/', itemController.getAllItems);
+router.get('/',
+    itemController.getAllItems
+);
 
 // @route   GET api/items/:itemId
 // @desc    Get an item based on ID
@@ -39,6 +41,10 @@ router.get('/:itemId',
     itemIdValidationRules,
     validateAll,
     itemController.getItemById
+);
+
+router.get('/search',
+    itemController.searchByQuery
 );
 
 
@@ -51,6 +57,7 @@ router.post('/:storeId',
     authMiddleware,
     storeIdValidationRules,
     itemValidationRules,
+    body('storyCategory').optional().isMongoId().withMessage('Invalid store category ID.'),
     checkMerchantRole,
     checkStoreExists,
     checkCategoryExists,
@@ -69,6 +76,7 @@ router.put('/:itemId',
     body('description').optional().trim(),
     body('category').optional().isMongoId().withMessage('Invalid category ID.'),
     checkMerchantRole,
+    body('storyCategory').optional().isMongoId().withMessage('Invalid category ID.'),
     checkItemExists,
     body('images').optional().isURL().withMessage('Image must be a valid URL.'),
     validateAll,
