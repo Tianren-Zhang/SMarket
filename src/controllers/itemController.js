@@ -28,7 +28,7 @@ exports.deleteItem = async (req, res) => {
     try {
         await itemService.deleteItemFromInventory(req.params.itemId, req.user.id);
         res.json({msg: 'Item deleted successfully'});
-    } catch (error) {
+    } catch (err) {
         console.error(err.message);
         res.status(err.status || 500).send(err.message || 'Server Error');
     }

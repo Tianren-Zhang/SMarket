@@ -14,10 +14,14 @@ const StoreSchema = new Schema({
         unique: true,
     },
 
+    storeCategories: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'StoreCategory',
+    },
+
     categories: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'storeCategory',
-        required: true
+        ref: 'Category',
     },
 
     description: String,
@@ -69,6 +73,11 @@ const StoreSchema = new Schema({
         type: String,
         enum: ['active', 'maintenance', 'closed'],
         default: 'active'
+    },
+
+    isDeleted: {
+        type: Boolean,
+        default: false
     },
 
 }, {timestamps: true});

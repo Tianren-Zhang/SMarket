@@ -88,5 +88,52 @@ router.delete('/:storeId',
     storeController.deleteStore
 );
 
+// @route   POST api/store/:storeId
+// @desc    Create a store category
+// @access  Private
+router.post('/:storeId/categories',
+    authMiddleware,
+    storeIdValidationRules,
+    checkMerchantRole,
+    checkStoreExists,
+    validateAll,
+    storeController.createStoreCategory
+);
+
+// @route   PUT api/store/:storeId
+// @desc    Update a store category
+// @access  Private
+router.put('/:storeId/categories/:categoryId',
+    authMiddleware,
+    storeIdValidationRules,
+    checkMerchantRole,
+    checkStoreExists,
+    validateAll,
+    storeController.updateStoreCategory
+);
+
+// @route   GET api/store/:storeId
+// @desc    Get a store category
+// @access  Private
+router.get('/:storeId/categories/:categoryId',
+    storeIdValidationRules,
+    checkMerchantRole,
+    checkStoreExists,
+    validateAll,
+    storeController.getStoreCategory
+);
+
+// @route   DELETE api/store/:storeId
+// @desc    Delete a store category
+// @access  Private
+router.delete('/:storeId/categories/:categoryId',
+    authMiddleware,
+    storeIdValidationRules,
+    checkMerchantRole,
+    checkStoreExists,
+    validateAll,
+    storeController.deleteStoreCategory
+);
+
 
 module.exports = router;

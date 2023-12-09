@@ -15,12 +15,12 @@ const StoreCategorySchema = new Schema({
 
     parentCategory: {
         type: Schema.Types.ObjectId,
-        ref: 'storeCategory',
+        ref: 'StoreCategory',
         default: null // null for first-level categories
     },
     subCategories: [{
         type: Schema.Types.ObjectId,
-        ref: 'storeCategory'
+        ref: 'StoreCategory'
     }],
 
     description: String,
@@ -38,11 +38,11 @@ const StoreCategorySchema = new Schema({
 
     customFields: {},
 
-    isDelete: {
+    isDeleted: {
         type: Boolean,
         default: false
     },
 
 }, {timestamps: true});
 
-module.exports = mongoose.model('storeCategory', StoreCategorySchema);
+module.exports = mongoose.model('StoreCategory', StoreCategorySchema);
