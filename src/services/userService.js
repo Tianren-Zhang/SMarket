@@ -10,7 +10,7 @@ const register = async ({username, email, password, Role}) => {
     // Check if a user with the given email already exists
     let user = await User.findOne({email});
     if (user) {
-        throw new AlreadyExistsError('User already exists');
+        throw new AlreadyExistsError('User already exists', 'email', email, 'body');
     }
     const role = await UserRole.findOne({name: Role});
     if (!role) {

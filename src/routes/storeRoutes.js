@@ -2,8 +2,7 @@ const express = require('express');
 const storeController = require('../controllers/storeController');
 const {body, param} = require('express-validator');
 const authMiddleware = require('../middlewares/authMiddleware');
-const checkMerchantRole = require('../middlewares/storeMiddleware/checkMerchantRole');
-const checkStoreExists = require('../middlewares/storeMiddleware/checkStoreExists');
+const checkMerchantRole = require('../middlewares/checkMerchantRole');
 const validateAll = require('../middlewares/validate');
 const router = express.Router();
 
@@ -44,8 +43,8 @@ router.get('/:storeId',
 // @access  Private
 router.post('/',
     authMiddleware,
-    storeValidationRules,
     checkMerchantRole,
+    storeIdValidationRules,
     validateAll,
     storeController.createStore
 );
@@ -56,10 +55,9 @@ router.post('/',
 router.put(
     '/:storeId',
     authMiddleware,
+    checkMerchantRole,
     storeIdValidationRules,
     storeValidationRules,
-    checkMerchantRole,
-    checkStoreExists,
     validateAll,
     storeController.updateStore
 );
@@ -69,9 +67,8 @@ router.put(
 // @access  Private
 router.get('/:storeId',
     authMiddleware,
-    storeIdValidationRules,
     checkMerchantRole,
-    checkStoreExists,
+    storeIdValidationRules,
     validateAll,
     storeController.getStore
 );
@@ -81,44 +78,40 @@ router.get('/:storeId',
 // @access  Private
 router.delete('/:storeId',
     authMiddleware,
-    storeIdValidationRules,
     checkMerchantRole,
-    checkStoreExists,
+    storeIdValidationRules,
     validateAll,
     storeController.deleteStore
 );
 
-// @route   POST api/store/:storeId
+// @route   POST api/store/:storeId/categories
 // @desc    Create a store category
 // @access  Private
 router.post('/:storeId/categories',
     authMiddleware,
-    storeIdValidationRules,
     checkMerchantRole,
-    checkStoreExists,
+    param('storeId').isMongoId().withMessage('Invalid store ID.'),
     validateAll,
     storeController.createStoreCategory
 );
 
-// @route   PUT api/store/:storeId
+// @route   PUT api/store/:storeId/categories/:categoryId
 // @desc    Update a store category
 // @access  Private
 router.put('/:storeId/categories/:categoryId',
     authMiddleware,
     storeIdValidationRules,
     checkMerchantRole,
-    checkStoreExists,
     validateAll,
     storeController.updateStoreCategory
 );
 
-// @route   GET api/store/:storeId
+// @route   GET api/store/:storeId/categories/:categoryId
 // @desc    Get a store category
 // @access  Private
 router.get('/:storeId/categories/:categoryId',
     storeIdValidationRules,
     checkMerchantRole,
-    checkStoreExists,
     validateAll,
     storeController.getStoreCategory
 );
@@ -128,9 +121,8 @@ router.get('/:storeId/categories/:categoryId',
 // @access  Private
 router.delete('/:storeId/categories/:categoryId',
     authMiddleware,
-    storeIdValidationRules,
     checkMerchantRole,
-    checkStoreExists,
+    storeIdValidationRules,
     validateAll,
     storeController.deleteStoreCategory
 );

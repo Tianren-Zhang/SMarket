@@ -8,6 +8,7 @@ const storeRoutes = require('./routes/storeRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const shoppingCartRoutes = require('./routes/shoppingCartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const errorHandler = require('./exceptions/error-handler')
 const app = express();
 
 mongoDB.connectDB();
@@ -43,10 +44,8 @@ app.use('/api/cart', shoppingCartRoutes);
 // Order routes
 app.use('/api/order', orderRoutes);
 
-app.use((err, req, res, next) => {
-    const status = err.status || 500;
-    const message = err.message || 'Internal Server Error';
-    res.status(status).json({error: message});
-});
+
+// Global Error handler
+app.use(errorHandler);
 
 module.exports = app;

@@ -70,13 +70,13 @@ exports.deleteStore = async (req, res) => {
     }
 };
 
-exports.createStoreCategory = async (req, res) => {
+exports.createStoreCategory = async (req, res, next) => {
     try {
         const storeCategory = await storeService.createStoreCategory(req.user.id, req.params.storeId, req.body);
         res.json(storeCategory);
     } catch (err) {
-        console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        console.error(err);
+        next(err);
     }
 };
 

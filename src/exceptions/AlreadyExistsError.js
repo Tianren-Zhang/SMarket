@@ -1,9 +1,12 @@
 class AlreadyExistsError extends Error {
-    constructor(message) {
+    constructor(message, field, value, location = 'body') {
         super(message);
         this.name = "AlreadyExistsError";
-        // status code 409 Conflict is often used for this type of error
         this.status = 409;
+        this.type = 'conflict';
+        this.field = field; // For AlreadyExistsError, field is likely mandatory
+        this.value = value;
+        this.location = location;
     }
 }
 

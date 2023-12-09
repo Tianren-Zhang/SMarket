@@ -1,9 +1,9 @@
 const express = require('express');
 const authMiddleware = require('../middlewares/authMiddleware');
-const checkCategoryExists = require('../middlewares/storeMiddleware/checkCategoryExists');
-const checkItemExists = require('../middlewares/storeMiddleware/checkItemExists');
-const checkMerchantRole = require('../middlewares/storeMiddleware/checkMerchantRole');
-const checkStoreExists = require('../middlewares/storeMiddleware/checkStoreExists');
+const checkCategoryExists = require('../middlewares/checkCategoryExists');
+const checkItemExists = require('../middlewares/checkItemExists');
+const checkMerchantRole = require('../middlewares/checkMerchantRole');
+const checkStoreExists = require('../middlewares/checkStoreExists');
 const validateAll = require('../middlewares/validate');
 const itemController = require('../controllers/itemController');
 const {body, param} = require('express-validator');

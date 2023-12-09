@@ -11,7 +11,6 @@ const StoreSchema = new Schema({
     storeName: {
         type: String,
         required: true,
-        unique: true,
     },
 
     storeCategories: {

@@ -1,7 +1,7 @@
 const express = require('express');
 const shoppingCartController = require('../controllers/shoppingCartController');
 const authMiddleware = require('../middlewares/authMiddleware'); // Assuming auth middleware
-const checkCustomerRole = require('../middlewares/storeMiddleware/checkCustomerRole');
+const checkCustomerRole = require('../middlewares/checkCustomerRole');
 const validateAll = require('../middlewares/validate');
 const {param} = require("express-validator");
 const router = express.Router();

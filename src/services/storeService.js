@@ -7,11 +7,12 @@ const Item = require('../models/Item');
 const User = require("../models/User");
 
 const getStores = async () => {
-    return Store.find().populate('owner', ['username', 'email']);
+    return Store.find().populate('owner', ['username', 'email']).select('-isDeleted');
+
 }
 
 const getStoreById = async (storeId) => {
-    const store = await Store.findById(storeId).populate('owner', ['username', 'email']);
+    const store = await Store.findById(storeId).populate('owner', ['username', 'email']).select('-isDeleted');
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found');
     }
@@ -26,23 +27,27 @@ const createStore = async (ownerId, storeData) => {
 
     owner.store.push(store._id);
     await owner.save();
-    return store;
+
+    const storeResponse = store.toObject(); // Convert to a regular object
+    delete storeResponse.isDeleted;
+    return storeResponse;
 };
 
 const updateStore = async (storeId, userId, updateData) => {
-    const store = valiateStoreId(userId, storeId);
+    const store = validateStoreId(userId, storeId);
 
     return Store.findOneAndUpdate(
         {owner: store.owner},
         {$set: updateData},
         {new: true, upsert: true}
-    ).populate('owner', ['username', 'email']);
+    ).populate('owner', ['username', 'email']).select('-isDeleted');
 };
 
 const getStoreInfo = async (storeId) => {
     const store = await Store.findById(storeId)
         .populate('inventory.item')
-        .populate('owner', ['username', 'email']);
+        .populate('owner', ['username', 'email'])
+        .select('-isDeleted');
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found');
     }
@@ -51,16 +56,18 @@ const getStoreInfo = async (storeId) => {
 
 
 const deleteStore = async (storeId, userId) => {
-    const store = valiateStoreId(userId, storeId);
+    await validateStoreId(userId, storeId);
     // console.log(store.owner);
-    await Item.deleteMany({store: storeId});
-    await Store.findByIdAndDelete(storeId);
-    await User.findByIdAndUpdate(store.owner, {$pull: {store: storeId}});
+    await Store.findByIdAndUpdate(storeId, {isDeleted: true});
+
+    // Optionally, also soft delete all items associated with the store
+    await Item.updateMany({store: storeId}, {isDeleted: true});
 };
 
 const createStoreCategory = async (userId, storeId, storeCategoryData) => {
-    const store = valiateStoreId(userId, storeId);
+    const store = validateStoreId(userId, storeId);
     const {name, parentCategory, description, images, featured, tags, customFields} = storeCategoryData;
+
     const newCategory = new StoreCategory({
         name,
         store: storeId,
@@ -71,31 +78,62 @@ const createStoreCategory = async (userId, storeId, storeCategoryData) => {
         tags,
         customFields
     });
-    store.storeCategories.push(newCategory._id);
-    await store.save();
+
     await newCategory.save();
 
-    return store;
+    if (parentCategory) {
+        const parent = await StoreCategory.findById(parentCategory);
+        if (parent) {
+            parent.subCategories.push(newCategory._id);
+            await parent.save();
+        }
+    }
+
+    store.storeCategories.push(newCategory._id);
+    await store.save();
+
+    const storeCategoryResponse = newCategory.toObject(); // Convert to a regular object
+    delete storeCategoryResponse.isDeleted;
+    return storeCategoryResponse;
 }
 
 const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategoryData) => {
-    await valiateStoreId(userId, storeId);
+    await validateStoreId(userId, storeId);
+
     const storeCategory = await StoreCategory.findById(categoryId);
     if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
         throw new NotFoundError('Store category not found');
     }
 
+    const oldParentId = storeCategory.parentCategory;
     for (let key in storeCategoryData) {
         storeCategory[key] = storeCategoryData[key];
+    }
+
+    if (oldParentId !== storeCategory.parentCategory) {
+        // Remove from old parent's subcategories
+        if (oldParentId) {
+            const oldParent = await StoreCategory.findById(oldParentId);
+            oldParent.subCategories.pull(storeCategory._id);
+            await oldParent.save();
+        }
+
+        // Add to new parent's subcategories
+        if (storeCategory.parentCategory) {
+            const newParent = await StoreCategory.findById(storeCategory.parentCategory);
+            newParent.subCategories.push(storeCategory._id);
+            await newParent.save();
+        }
     }
 
     await storeCategory.save();
     return storeCategory;
 }
 
+
 const getStoreCategoryById = async (userId, storeId, categoryId) => {
     const store = await Store.findById(storeId);
-    const storeCategory = await StoreCategory.findById(categoryId);
+    const storeCategory = await StoreCategory.findById(categoryId).select('-isDeleted');
 
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found');
@@ -107,22 +145,34 @@ const getStoreCategoryById = async (userId, storeId, categoryId) => {
 }
 
 const deleteStoreCategory = async (userId, storeId, categoryId) => {
-    await valiateStoreId(userId, storeId);
+    await validateStoreId(userId, storeId);
+
     const storeCategory = await StoreCategory.findById(categoryId);
     if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
         throw new NotFoundError('Store category not found');
     }
+
+    // Remove from parent category's subcategories
+    if (storeCategory.parentCategory) {
+        const parent = await StoreCategory.findById(storeCategory.parentCategory);
+        parent.subCategories.pull(storeCategory._id);
+        await parent.save();
+    }
+
+    // Optionally handle subcategories of the deleted category
+
     storeCategory.isDeleted = true;
     await storeCategory.save();
 }
 
-async function valiateStoreId(userId, storeId) {
+
+async function validateStoreId(userId, storeId) {
     const store = await Store.findById(storeId);
-    if (store.owner.toString() !== userId) {
-        throw new UnauthorizedError('Unauthorized User');
-    }
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found');
+    }
+    if (store.owner.toString() !== userId) {
+        throw new UnauthorizedError('Unauthorized User');
     }
     return store;
 }
