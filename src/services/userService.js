@@ -14,7 +14,7 @@ const register = async ({username, email, password, Role}) => {
     }
     const role = await UserRole.findOne({name: Role});
     if (!role) {
-        throw new NotFoundError('Role not found');
+        throw new NotFoundError('Role not found', 'UserRole', Role, 'body');
     }
 
     // Create a new user instance

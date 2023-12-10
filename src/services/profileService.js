@@ -8,14 +8,13 @@ const User = require("../models/User");
 const createProfile = async (userId, profileData) => {
     // Check if the user exists
     const user = await User.findById(userId);
-    if (!user) {
-        throw new NotFoundError('User not found');
+    if (!user || user.isDeleted) {
+        throw new NotFoundError('User not found', 'user', userId, 'header');
     }
-
     // Check if profile already exists
-    const existingProfile = await Profile.findOne({user: userId});
+    const existingProfile = await Profile.findOne({user: userId, isDeleted: false});
     if (existingProfile) {
-        throw new AlreadyExistsError('Profile already exists');
+        throw new AlreadyExistsError('Profile already exists', 'user', userId, 'header');
     }
 
     // Create and save the profile
@@ -26,20 +25,27 @@ const createProfile = async (userId, profileData) => {
     user.profile = profile._id;
     await user.save();
 
-    return profile;
+    const profileResponse = profile.toObject();
+    delete profileResponse.isDeleted;
+    return profileResponse;
 };
 
 const getProfileByUserId = async (userId) => {
+    const user = await User.findById(userId);
+    if (!user || user.isDeleted) {
+        throw new NotFoundError('User not found', 'user', userId, 'header');
+    }
     const existingProfile = await Profile.findOne({user: userId, isDeleted: false})
         .populate('user', '-password -emailVerified')
         .populate({
             path: 'addresses',
             match: {isDeleted: false},
             select: '-isDeleted'
-        });
+        })
+        .select('-isDeleted');
 
     if (!existingProfile) {
-        throw new Error('Profile not found');
+        throw new NotFoundError('Profile not found', 'user', userId, 'header');
     }
 
     if (existingProfile.addresses) {
@@ -50,11 +56,16 @@ const getProfileByUserId = async (userId) => {
 };
 
 const updateProfileByUserId = async (userId, profileData) => {
+    const user = await User.findById(userId);
+    if (!user || user.isDeleted) {
+        throw new NotFoundError('User not found', 'user', userId, 'header');
+    }
+
     // Find the existing profile
     const existingProfile = await Profile.findOne({user: userId, isDeleted: false});
 
     if (!existingProfile) {
-        throw new Error('Profile not found');
+        throw new NotFoundError('Profile not found', 'user', userId, 'header');
     }
 
     // Merge socialMedia data if it exists in profileData
@@ -70,34 +81,45 @@ const updateProfileByUserId = async (userId, profileData) => {
         {user: userId},
         {$set: profileData},
         {new: true}
-    ).populate('user', ['username', 'email']);
+    ).populate('user', ['username', 'email'])
+        .select('-isDeleted');
 
     return updatedProfile;
 };
 
 const addAddress = async (userId, addressData) => {
+    const user = await User.findById(userId);
+    if (!user || user.isDeleted) {
+        throw new NotFoundError('User not found', 'user', userId, 'header');
+    }
     // Update the profile
-    const updatedProfile = await Profile.findOne({user: userId, isDeleted: false});
+    const updatedProfile = await Profile.findOne({user: userId, isDeleted: false}).select('-isDeleted');
+    if (!updatedProfile) {
+        throw new NotFoundError('Profile not found', 'user', userId, 'header');
+    }
+
     const address = new UserAddress({user: userId, ...addressData});
     updatedProfile.addresses.push(address._id);
     await address.save();
     await updatedProfile.save();
+
     return updatedProfile;
 };
 
 const updateAddressById = async (userId, addressId, addressData) => {
+    const user = await User.findById(userId);
+    if (!user || user.isDeleted) {
+        throw new NotFoundError('User not found', 'user', userId, 'header');
+    }
     // Update the profile
     const updatedProfile = await Profile.findOne({user: userId, isDeleted: false});
-    if (!updatedProfile) {
-        throw new NotFoundError('User profile not found');
-    }
-    if (!updatedProfile.addresses.includes(addressId)) {
-        throw new NotFoundError('Address not found');
+    if (!updatedProfile || !updatedProfile.addresses.includes(addressId)) {
+        throw new NotFoundError('Profile not found', 'user', userId, 'header');
     }
 
     const address = await UserAddress.findById(addressId);
-    if (!address) {
-        throw new NotFoundError('Address not found');
+    if (!address || address.isDeleted) {
+        throw new NotFoundError('Profile not found', 'address', addressId, 'header');
     }
 
     for (const key in addressData) {
@@ -111,16 +133,17 @@ const updateAddressById = async (userId, addressId, addressData) => {
 };
 
 const deleteAddressById = async (userId, addressId) => {
-    const profile = await Profile.findOne({user: userId, isDeleted: false});
-    if (!profile) {
-        throw new NotFoundError('User profile not found');
+    const user = await User.findById(userId);
+    if (!user || user.isDeleted) {
+        throw new NotFoundError('User not found', 'user', userId, 'header');
     }
-    if (!profile.addresses.includes(addressId)) {
-        throw new NotFoundError('Address not found');
+    const profile = await Profile.findOne({user: userId, isDeleted: false});
+    if (!profile || !profile.addresses.includes(addressId)) {
+        throw new NotFoundError('Profile not found', 'user', userId, 'header');
     }
     const address = await UserAddress.findById(addressId);
-    if (!address) {
-        throw new NotFoundError('Address not found');
+    if (!address || address.isDeleted) {
+        throw new NotFoundError('Profile not found', 'address', addressId, 'header');
     }
     address.isDeleted = true;
     // profile.addresses = profile.addresses.filter(id => id.toString() !== addressId);
@@ -129,17 +152,19 @@ const deleteAddressById = async (userId, addressId) => {
 };
 
 const deleteProfileByUserId = async (userId) => {
+    const user = await User.findById(userId);
+    if (!user || user.isDeleted) {
+        throw new NotFoundError('User not found', 'user', userId, 'header');
+    }
     // Find the profile to ensure it exists and is not already deleted
     const profile = await Profile.findOne({user: userId, isDeleted: false});
     if (!profile) {
-        throw new NotFoundError('User profile not found');
+        throw new NotFoundError('Profile not found', 'user', userId, 'header');
     }
 
     // Soft delete the profile by setting isDeleted to true
-    await Profile.findOneAndUpdate({user: userId}, {$set: {isDeleted: true}});
+    await Profile.findOneAndUpdate({user: userId, isDeleted: false}, {$set: {isDeleted: true}});
 
-    // Update the user's profile reference
-    await User.findByIdAndUpdate(userId, {$unset: {profile: "", deleteAt: Date.now()}});
 };
 
 module.exports = {
