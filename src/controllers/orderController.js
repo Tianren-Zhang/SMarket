@@ -1,6 +1,28 @@
 const orderService = require("../services/orderService");
 
+// **********************  Public APIs  **************************** //
+exports.getAllCustomerOrders = async (req, res) => {
+    try {
+        const orders = await orderService.getAllCustomerOrders();
+        res.status(201).json(orders);
+    } catch (err) {
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
+    }
+}
 
+exports.getAllIndividualOrders = async (req, res) => {
+
+    try {
+        const orders = await orderService.getAllIndividualOrders();
+        res.status(201).json(orders);
+    } catch (err) {
+        console.error(err.message);
+        res.status(err.status || 500).send(err.message || 'Server Error');
+    }
+}
+
+// **********************  Private APIs  **************************** //
 exports.placeOrder = async (req, res) => {
     try {
         const order = await orderService.createOrder(req.user.id, req.body);
@@ -43,7 +65,7 @@ exports.updateOrderDetails = async (req, res) => {
 
 exports.cancelOrder = async (req, res) => {
     try {
-        await orderService.cancelOrder(req.user.id, req.body);
+        await orderService.cancelOrder(req.user.id, req.params.customerOrderId, req.body);
         res.json({msg: 'Order cancelled successfully'});
     } catch (err) {
         console.error(err.message);
@@ -51,23 +73,4 @@ exports.cancelOrder = async (req, res) => {
     }
 };
 
-exports.getAllCustomerOrders = async (req, res) => {
-    try {
-        const orders = await orderService.getAllCustomerOrders();
-        res.status(201).json(orders);
-    } catch (err) {
-        console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
-    }
-}
 
-exports.getAllIndividualOrders = async (req, res) => {
-
-    try {
-        const orders = await orderService.getAllIndividualOrders();
-        res.status(201).json(orders);
-    } catch (err) {
-        console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
-    }
-}

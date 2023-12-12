@@ -1,11 +1,12 @@
 const Item = require("../models/Item");
 const ShoppingCart = require("../models/ShoppingCart");
 const NotFoundError = require("../exceptions/NotFoundError");
+const User = require("../models/User");
 
-exports.addItemToCart = async (itemId, userId, quantity) => {
+const addItemToCart = async (itemId, userId, quantity) => {
     const item = await Item.findById(itemId);
     if (!item) {
-        throw new NotFoundError('Item not found');
+        throw new NotFoundError('Item not found', 'itemId', itemId, 'params');
     }
 
     let cart = await ShoppingCart.findOne({user: userId});
@@ -25,25 +26,17 @@ exports.addItemToCart = async (itemId, userId, quantity) => {
 };
 
 // Retrieve the current user's shopping cart
-exports.getUserCart = async (userId) => {
+const getUserCart = async (userId) => {
     const cart = await ShoppingCart.findOne({user: userId}).populate('items.item');
     if (!cart) {
-        throw new NotFoundError('Cart not found');
+        throw new NotFoundError('Cart not found', 'user', userId, 'header');
     }
     return cart;
 };
 
 // Update the quantity of an item in the cart
-exports.updateCartItem = async (itemId, userId, quantity) => {
-    const item = await Item.findById(itemId);
-    if (!item) {
-        throw new NotFoundError('Item not found');
-    }
-
-    const cart = await ShoppingCart.findOne({user: userId});
-    if (!cart) {
-        throw new NotFoundError('Cart not found');
-    }
+const updateCartItem = async (itemId, userId, quantity) => {
+    const {user, item, cart} = checkItem(userId, itemId);
 
     // Find the item and update the quantity
     const itemIndex = cart.items.findIndex(item => item.item.toString() === itemId);
@@ -52,24 +45,41 @@ exports.updateCartItem = async (itemId, userId, quantity) => {
         await cart.save();
         return cart;
     } else {
-        throw new NotFoundError('Item not found');
+        throw new NotFoundError('Item not found', 'itemId', itemId, 'params');
     }
 };
 
 // Remove an item from the cart
-exports.removeItemFromCart = async (itemId, userId) => {
-    const cart = await ShoppingCart.findOne({user: userId});
-    if (!cart) {
-        throw new NotFoundError('Cart not found');
-    }
-
-    const itemIndex = cart.items.findIndex(item => item._id.toString() === itemId);
-    if (itemIndex === -1) {
-        throw new NotFoundError('Item not found in cart');
-    }
+const removeItemFromCart = async (itemId, userId) => {
+    const {user, item, cart} = checkItem(userId, itemId);
 
     // Remove the item from the cart
     cart.items = cart.items.filter(item => item.item.toString() !== itemId);
     await cart.save();
     return cart;
 };
+
+async function checkItem(userId, itemId) {
+    const user = await User.findById(userId);
+    if (!user || user.isDeleted) {
+        throw new NotFoundError('User not found', 'user', userId, 'header');
+    }
+
+    const cart = await ShoppingCart.findOne({user: userId});
+    if (!cart) {
+        throw new NotFoundError('Cart not found', 'user', userId, 'header');
+    }
+
+    const item = await Item.findById(itemId);
+    if (!item || item.isDeleted) {
+        throw new NotFoundError('Item not found', 'itemId', itemId, 'params');
+    }
+    return {user, item, cart};
+}
+
+module.exports = {
+    addItemToCart,
+    getUserCart,
+    updateCartItem,
+    removeItemFromCart
+}

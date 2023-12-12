@@ -17,7 +17,7 @@ const createOrder = async (userId, orderData) => {
 
         const item = await Item.findById(itemId);
         if (!item) {
-            throw new NotFoundError('Item not found');
+            throw new NotFoundError('Item not found', 'itemId', itemId, 'body');
         }
         if (item.quantity < quantity) {
             throw new Error('No enough items');
@@ -87,15 +87,13 @@ const updateOrderById = async (userId, orderId, newStatus) => {
     // Logic to update the status of an order
 };
 
-const cancelOrder = async (userId, orderData) => {
-    // Valid the customerOrder
-    const customerOrderId = orderData.customerOrder;
+const cancelOrder = async (userId, customerOrderId, orderData) => {
     const customerOrder = await CustomerOrder.findById(customerOrderId);
     if (!customerOrder) {
-        throw new NotFoundError('Order not found');
+        throw new NotFoundError('Order not found', 'customerOrderId', customerOrderId, 'params');
     }
     if (customerOrder.user.toString() !== userId) {
-        throw new UnauthorizedError('User does not have permission to update this item');
+        throw new UnauthorizedError('User does not have permission to update this item', 'user', userid, 'header');
     }
     // console.log(customerOrder);
 
@@ -104,10 +102,10 @@ const cancelOrder = async (userId, orderData) => {
     for (const individualOrderId of orderData.individualOrder) {
         const order = await IndividualOrder.findById(individualOrderId);
         if (!order) {
-            throw new NotFoundError('Order not found');
+            throw new NotFoundError('Order not found', 'individualOrderId', individualOrderId, 'body');
         }
         if (!customerOrder.individualOrders.includes(individualOrderId)) {
-            throw new NotFoundError('Order not found');
+            throw new NotFoundError('Order not found', 'individualOrderId', individualOrderId, 'body');
         }
         // console.log(order);
         // console.log(customerOrder.individualOrders.includes(individualOrderId));
@@ -116,7 +114,7 @@ const cancelOrder = async (userId, orderData) => {
 
     for (const individualOrder of validIndividualOrder) {
         if (individualOrder.status !== 'pending') {
-            throw new UnauthorizedError('User does not have permission to update this item');
+            throw new UnauthorizedError('User does not have permission to update this item', 'user', userid, 'header');
         }
         // console.log(individualOrder);
         individualOrder.status = 'cancelled';

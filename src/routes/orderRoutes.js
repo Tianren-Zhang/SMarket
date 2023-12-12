@@ -87,7 +87,7 @@ router.put('/:orderId',
 // @route   DELETE api/order/
 // @desc    Cancel an order based on the customer id and individual ids
 // @access  Private
-router.delete('/',
+router.delete('/:customerOrderId',
     authMiddleware,
     checkCustomerRole,
     cancelOrderValidationRules,

@@ -14,7 +14,7 @@ const getStores = async () => {
 const getStoreById = async (storeId) => {
     const store = await Store.findById(storeId).populate('owner', ['username', 'email']);//.select('-isDeleted');
     if (!store || store.isDeleted) {
-        throw new NotFoundError('Store not found');
+        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
     }
     return store;
 }
@@ -49,7 +49,7 @@ const getStoreInfo = async (storeId) => {
         .populate('owner', ['username', 'email'])
         .select('-isDeleted');
     if (!store || store.isDeleted) {
-        throw new NotFoundError('Store not found');
+        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
     }
     return store;
 };
@@ -102,7 +102,7 @@ const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategor
 
     const storeCategory = await StoreCategory.findById(categoryId);
     if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
-        throw new NotFoundError('Store category not found');
+        throw new NotFoundError('Store category not found', 'storeId', storeId, 'params');
     }
 
     const oldParentId = storeCategory.parentCategory;
@@ -136,10 +136,10 @@ const getStoreCategoryById = async (userId, storeId, categoryId) => {
     const storeCategory = await StoreCategory.findById(categoryId).select('-isDeleted');
 
     if (!store || store.isDeleted) {
-        throw new NotFoundError('Store not found');
+        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
     }
     if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
-        throw new NotFoundError('Store category not found');
+        throw new NotFoundError('Store category not found', 'categoryId', categoryId, 'params');
     }
     return storeCategory;
 }
@@ -149,7 +149,7 @@ const deleteStoreCategory = async (userId, storeId, categoryId) => {
 
     const storeCategory = await StoreCategory.findById(categoryId);
     if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
-        throw new NotFoundError('Store category not found');
+        throw new NotFoundError('Store category not found', 'categoryId', categoryId, 'params');
     }
 
     // Remove from parent category's subcategories
@@ -169,10 +169,10 @@ const deleteStoreCategory = async (userId, storeId, categoryId) => {
 async function validateStoreId(userId, storeId) {
     const store = await Store.findById(storeId);
     if (!store || store.isDeleted) {
-        throw new NotFoundError('Store not found');
+        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
     }
     if (store.owner.toString() !== userId) {
-        throw new UnauthorizedError('Unauthorized User');
+        throw new UnauthorizedError('Unauthorized User', 'userId', userId, 'header');
     }
     return store;
 }

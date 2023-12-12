@@ -1,7 +1,7 @@
 const storeService = require('../services/storeService');
 const {validationResult} = require('express-validator');
 
-
+// **********************  Public APIs  **************************** //
 exports.getAllStores = async (req, res) => {
     try {
         const stores = await storeService.getStores();
@@ -25,6 +25,7 @@ exports.getStoreById = async (req, res) => {
     }
 };
 
+// **********************  Private APIs  **************************** //
 exports.createStore = async (req, res) => {
     try {
         const store = await storeService.createStore(req.user.id, req.body);
