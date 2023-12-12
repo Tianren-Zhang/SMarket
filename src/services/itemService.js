@@ -4,90 +4,20 @@ const UnauthorizedError = require("../exceptions/UnauthorizedError");
 const StoreCategory = require("../models/StoreCategory");
 const Store = require("../models/Store");
 
-const deleteItemFromInventory = async (itemId, userId) => {
-    const item = await Item.findById(itemId).populate('store');
-    if (!item) {
-        throw new NotFoundError('Item not found');
-    }
-    if (item.store.owner.toString() !== userId) {
-        throw new UnauthorizedError('User does not have permission to update this item');
-    }
-
-    await Store.findByIdAndUpdate(item.store, {$pull: {inventory: itemId}});
-    // Remove the item
-    await Item.findByIdAndDelete(itemId);
-
-};
-
-const addItemToInventory = async (storeId, userId, itemData) => {
-    const store = await Store.findById(storeId);
-    if (!store) {
-        throw new NotFoundError('Store not found');
-    }
-
-    if (store.owner.toString() !== userId) {
-        throw new UnauthorizedError('Unauthorized User');
-    }
-    if (itemData.storeCategory) {
-        const storeCategory = await StoreCategory.findOne({storeCategory: itemData.storeCategory, isDeleted: false});
-        if (!storeCategory) {
-            throw new NotFoundError('Store Category not found');
-        }
-        if (storeCategory.store.toString() !== storeId) {
-            throw new UnauthorizedError('Unauthorized User');
-        }
-    }
-    const newItem = new Item({store: storeId, ...itemData});
-    await newItem.save();
-
-    store.inventory.push(newItem);
-    await store.save();
-    // console.log(store.inventory);
-    return newItem;
-};
-
-const updateItemInInventory = async (userId, itemId, updateData) => {
-    // Find the item along with its associated store
-    const item = await Item.findById(itemId).populate('store');
-
-    if (!item) {
-        throw new NotFoundError('Item not found');
-    }
-
-    // Check if the user owns the store
-    if (item.store.owner.toString() !== userId) {
-        throw new UnauthorizedError('User does not have permission to update this item');
-    }
-
-    if (updateData.storeCategory) {
-        const storeCategory = await StoreCategory.findOne({storeCategory: updateData.storeCategory, isDeleted: false});
-        if (!storeCategory) {
-            throw new NotFoundError('Store Category not found');
-        }
-        if (storeCategory.store.toString() !== item.store.toString()) {
-            throw new UnauthorizedError('Unauthorized User');
-        }
-    }
-
-    // Perform the update
-    const updatedItem = await Item.findByIdAndUpdate(itemId, updateData, {new: true});
-    return updatedItem;
-};
-
-const getItemById = async (itemId) => {
-    const item = await Item.findById(itemId).populate('store', 'storeName').populate('category', 'name');
-    if (!item) {
-        throw new NotFoundError('Item not found');
-    }
-    return item;
-}
-
 const getItems = async () => {
     const items = await Item.find().populate('store', 'storeName');//.populate('category', 'name');
     // items.forEach(item => {
     //     console.log(item.images);  // Log the images array
     // });
     return items;
+}
+
+const getItemById = async (itemId) => {
+    const item = await Item.findById(itemId).populate('store', 'storeName').populate('category', 'name').select('-isDeleted');
+    if (!item) {
+        throw new NotFoundError('Item not found', 'itemId', itemId, 'params');
+    }
+    return item;
 }
 
 const searchByQuery = async (query) => {
@@ -132,6 +62,77 @@ const searchByQuery = async (query) => {
     const totalItems = await Item.countDocuments(matchQuery);
 
     return {items, totalItems, page, limit};
+}
+
+const addItemToInventory = async (storeId, userId, itemData) => {
+    const store = await Store.findById(storeId);
+    if (!store || store.isDeleted) {
+        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
+    }
+
+    if (store.owner.toString() !== userId) {
+        throw new UnauthorizedError('User does not have permission to update this item', 'user', userId, 'header');
+    }
+    if (itemData.storeCategory) {
+        const storeCategory = await StoreCategory.findOne({storeCategory: itemData.storeCategory, isDeleted: false});
+        if (!storeCategory) {
+            throw new NotFoundError('Store Category not found', 'storeCategory', storeCategory, 'body');
+        }
+        if (storeCategory.store.toString() !== storeId) {
+            throw new UnauthorizedError('Unauthorized User', 'user', userId, 'header');
+        }
+    }
+    const newItem = new Item({store: storeId, ...itemData});
+    await newItem.save();
+
+    store.inventory.push(newItem);
+    await store.save();
+    // console.log(store.inventory);
+    const itemResponse = newItem.toObject();
+    delete itemResponse.isDeleted;
+    return itemResponse;
+};
+
+const updateItemInInventory = async (userId, itemId, updateData) => {
+    const item = checkItem(userId, itemId);
+
+    if (updateData.storeCategory) {
+        const storeCategory = await StoreCategory.findOne({storeCategory: updateData.storeCategory, isDeleted: false});
+        if (!storeCategory) {
+            throw new NotFoundError('Store Category not found', 'storeCategory', storeCategory, 'body');
+        }
+        if (storeCategory.store.toString() !== item.store.toString()) {
+            throw new UnauthorizedError('Unauthorized User', 'user', userId, 'header');
+        }
+    }
+
+    // Perform the update
+    const updatedItem = await Item.findByIdAndUpdate(itemId, updateData, {new: true}).select('-isDeleted');
+    return updatedItem;
+};
+
+const deleteItemFromInventory = async (userId, itemId) => {
+    const item = checkItem(userId, itemId);
+
+    await Store.findByIdAndUpdate(item.store, {$pull: {inventory: itemId}});
+    // Remove the item
+    item.isDeleted = true;
+    await item.save();
+};
+
+
+async function checkItem(userId, itemId) {
+    const item = await Item.findById(itemId).populate('store');
+
+    if (!item) {
+        throw new NotFoundError('Item not found', 'itemId', itemId, 'params');
+    }
+
+    // Check if the user owns the store
+    if (item.store.owner.toString() !== userId || item.store.isDeleted) {
+        throw new UnauthorizedError('User does not have permission to update this item');
+    }
+    return item;
 }
 
 module.exports = {

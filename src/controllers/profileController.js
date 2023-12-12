@@ -65,9 +65,9 @@ exports.deleteAddress = async (req, res) => {
 
 exports.deleteProfile = async (req, res) => {
     try {
+        await profileService.deleteProfileByUserId(req.user.id);
         res.json({msg: 'Profile deleted'});
     } catch (err) {
-        await profileService.deleteProfileByUserId(req.user.id);
         console.error(err.message);
         res.status(err.status || 500).send(err.message || 'Server Error');
     }

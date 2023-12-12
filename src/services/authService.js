@@ -8,11 +8,11 @@ const jwt = require("jsonwebtoken");
 const login = async ({email, password}) => {
     let user = await User.findOne({email});
     if (!user) {
-        throw new UnauthorizedError('Invalid Credentials');
+        throw new UnauthorizedError('Invalid Credentials', 'email', email, 'body');
     }
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-        throw new UnauthorizedError('Invalid Credentials');
+        throw new UnauthorizedError('Invalid Credentials', 'password', password, 'body');
 
     }
 

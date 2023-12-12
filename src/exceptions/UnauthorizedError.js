@@ -9,3 +9,5 @@ class UnauthorizedError extends Error {
         this.location = location;
     }
 }
+
+module.exports = UnauthorizedError;

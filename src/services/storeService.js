@@ -7,12 +7,12 @@ const Item = require('../models/Item');
 const User = require("../models/User");
 
 const getStores = async () => {
-    return Store.find().populate('owner', ['username', 'email']).select('-isDeleted');
+    return Store.find().populate('owner', ['username', 'email']);//.select('-isDeleted');
 
 }
 
 const getStoreById = async (storeId) => {
-    const store = await Store.findById(storeId).populate('owner', ['username', 'email']).select('-isDeleted');
+    const store = await Store.findById(storeId).populate('owner', ['username', 'email']);//.select('-isDeleted');
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found');
     }

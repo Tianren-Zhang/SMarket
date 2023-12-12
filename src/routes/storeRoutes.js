@@ -44,7 +44,6 @@ router.get('/:storeId',
 router.post('/',
     authMiddleware,
     checkMerchantRole,
-    storeIdValidationRules,
     validateAll,
     storeController.createStore
 );
