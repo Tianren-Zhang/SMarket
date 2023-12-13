@@ -109,9 +109,9 @@ router.put('/:storeId/categories/:categoryId',
 // @desc    Get a store category
 // @access  Private
 router.get('/:storeId/categories/:categoryId',
-    storeIdValidationRules,
-    checkMerchantRole,
-    validateAll,
+    // storeIdValidationRules,
+    // checkMerchantRole,
+    // validateAll,
     storeController.getStoreCategory
 );
 

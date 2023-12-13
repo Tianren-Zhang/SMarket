@@ -22,7 +22,7 @@ const getStoreById = async (storeId) => {
 const createStore = async (ownerId, storeData) => {
     const owner = await User.findById(ownerId).populate('userRole');
 
-    const store = new Store({owner: ownerId, ...storeData});
+    const store = new Store({owner: ownerId, storeCategories: [], ...storeData});
     await store.save();
 
     owner.store.push(store._id);
@@ -34,7 +34,7 @@ const createStore = async (ownerId, storeData) => {
 };
 
 const updateStore = async (storeId, userId, updateData) => {
-    const store = validateStoreId(userId, storeId);
+    const store = await validateStoreId(userId, storeId);
 
     return Store.findOneAndUpdate(
         {owner: store.owner},
@@ -65,13 +65,14 @@ const deleteStore = async (storeId, userId) => {
 };
 
 const createStoreCategory = async (userId, storeId, storeCategoryData) => {
-    const store = validateStoreId(userId, storeId);
+    const store = await validateStoreId(userId, storeId);
     const {name, parentCategory, description, images, featured, tags, customFields} = storeCategoryData;
 
     const newCategory = new StoreCategory({
         name,
         store: storeId,
         parentCategory,
+        subCategories: [],
         description,
         images,
         featured,
@@ -89,6 +90,9 @@ const createStoreCategory = async (userId, storeId, storeCategoryData) => {
         }
     }
 
+    if (!store.storeCategories) {
+        store.storeCategories = [];
+    }
     store.storeCategories.push(newCategory._id);
     await store.save();
 
@@ -110,7 +114,7 @@ const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategor
         storeCategory[key] = storeCategoryData[key];
     }
 
-    if (oldParentId !== storeCategory.parentCategory) {
+    if (oldParentId === null || oldParentId !== storeCategory.parentCategory) {
         // Remove from old parent's subcategories
         if (oldParentId) {
             const oldParent = await StoreCategory.findById(oldParentId);
@@ -131,7 +135,7 @@ const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategor
 }
 
 
-const getStoreCategoryById = async (userId, storeId, categoryId) => {
+const getStoreCategoryById = async (storeId, categoryId) => {
     const store = await Store.findById(storeId);
     const storeCategory = await StoreCategory.findById(categoryId).select('-isDeleted');
 
@@ -150,6 +154,11 @@ const deleteStoreCategory = async (userId, storeId, categoryId) => {
     const storeCategory = await StoreCategory.findById(categoryId);
     if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
         throw new NotFoundError('Store category not found', 'categoryId', categoryId, 'params');
+    }
+
+    // Restrict Deletion If Subcategories Exist
+    if (storeCategory.subCategories.length > 0) {
+        throw new UnauthorizedError('Cannot delete category with subcategories', 'StoreCategoryId', categoryId, 'params');
     }
 
     // Remove from parent category's subcategories

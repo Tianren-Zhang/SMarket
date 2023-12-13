@@ -2,17 +2,17 @@ const storeService = require('../services/storeService');
 const {validationResult} = require('express-validator');
 
 // **********************  Public APIs  **************************** //
-exports.getAllStores = async (req, res) => {
+exports.getAllStores = async (req, res, next) => {
     try {
         const stores = await storeService.getStores();
         res.json(stores);
     } catch (err) {
         console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        next(err);
     }
 };
 
-exports.getStoreById = async (req, res) => {
+exports.getStoreById = async (req, res, next) => {
     try {
         const store = await storeService.getStoreById(req.params.storeId)
         res.json(store);
@@ -21,22 +21,22 @@ exports.getStoreById = async (req, res) => {
             return res.status(404).json({msg: 'Store not found'});
         }
         console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        next(err);
     }
 };
 
 // **********************  Private APIs  **************************** //
-exports.createStore = async (req, res) => {
+exports.createStore = async (req, res, next) => {
     try {
         const store = await storeService.createStore(req.user.id, req.body);
         res.json(store);
     } catch (err) {
         console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        next(err);
     }
 };
 
-exports.updateStore = async (req, res) => {
+exports.updateStore = async (req, res, next) => {
     try {
         const updatedStore = await storeService.updateStore(req.params.storeId, req.user.id, req.body);
         if (!updatedStore) {
@@ -45,29 +45,29 @@ exports.updateStore = async (req, res) => {
         res.json(updatedStore);
     } catch (err) {
         console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        next(err);
     }
 };
 
-exports.getStore = async (req, res) => {
+exports.getStore = async (req, res, next) => {
     try {
         const {storeId} = req.params;
         const store = await storeService.getStoreInfo(storeId);
         res.json(store);
     } catch (err) {
         console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        next(err);
     }
 };
 
 
-exports.deleteStore = async (req, res) => {
+exports.deleteStore = async (req, res, next) => {
     try {
         await storeService.deleteStore(req.params.storeId, req.user.id);
         res.json({msg: 'Store deleted successfully'});
     } catch (err) {
         console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        next(err);
     }
 };
 
@@ -81,33 +81,36 @@ exports.createStoreCategory = async (req, res, next) => {
     }
 };
 
-exports.updateStoreCategory = async (req, res) => {
+exports.updateStoreCategory = async (req, res, next) => {
     try {
         const storeCategory = await storeService.updateStoreCategoryById(req.user.id, req.params.storeId, req.params.categoryId, req.body);
+        // console.log(req.body);
         res.json(storeCategory);
     } catch (err) {
         console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        next(err);
     }
 };
 
-exports.getStoreCategory = async (req, res) => {
+exports.getStoreCategory = async (req, res, next) => {
     try {
-        const storeCategory = await storeService.getStoreCategoryById(req.user.id, req.params.storeId, req.params.categoryId);
+        // console.log(req.params.storeId);
+        // console.log(req.params.categoryId);
+        const storeCategory = await storeService.getStoreCategoryById(req.params.storeId, req.params.categoryId);
         res.json(storeCategory);
     } catch (err) {
         console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        next(err);
     }
 };
 
-exports.deleteStoreCategory = async (req, res) => {
+exports.deleteStoreCategory = async (req, res, next) => {
     try {
-        const stores = await storeService.deleteStoreCategory();
+        const stores = await storeService.deleteStoreCategory(req.user.id, req.params.storeId, req.params.categoryId);
         res.json({msg: 'Category deleted successfully'});
     } catch (err) {
         console.error(err.message);
-        res.status(err.status || 500).send(err.message || 'Server Error');
+        next(err);
     }
 };
 

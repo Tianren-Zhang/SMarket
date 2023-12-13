@@ -6,7 +6,6 @@ exports.register = async (req, res, next) => {
 
     try {
         const token = await userService.register({username, email, password, Role});
-        // Send the token to the client
         res.status(201).json({token});
     } catch (err) {
         console.error(err);

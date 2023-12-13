@@ -13,10 +13,10 @@ const StoreSchema = new Schema({
         required: true,
     },
 
-    storeCategories: {
+    storeCategories: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'StoreCategory',
-    },
+    }],
 
     categories: {
         type: mongoose.Schema.Types.ObjectId,

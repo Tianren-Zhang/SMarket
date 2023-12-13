@@ -5,7 +5,7 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-exports.getChatResponse = async (req, res) => {
+exports.getChatResponse = async (req, res, next) => {
     const userMessage = req.body.message;
     try {
         const openaiResponse = await openai.chat.completions.create({
@@ -24,8 +24,8 @@ exports.getChatResponse = async (req, res) => {
 
         // Send back the completion text as the response
         res.json({message: openaiResponse.choices[0].message.content});
-    } catch (error) {
-        console.error('Error calling OpenAI:', error);
-        res.status(500).json({error: 'Error processing your message.'});
+    } catch (err) {
+        console.error('Error calling OpenAI:', err);
+        next(err);
     }
 };

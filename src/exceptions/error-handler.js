@@ -4,9 +4,9 @@ const errorHandler = (err, req, res, next) => {
         return res.status(err.status).json({
             errors: [{
                 type: err.type,
-                value: err.value,
                 msg: err.message,
                 path: err.field,
+                value: err.value,
                 location: err.location
             }]
         });
