@@ -94,14 +94,16 @@ const addItemToInventory = async (storeId, userId, itemData) => {
 };
 
 const updateItemInInventory = async (userId, itemId, updateData) => {
-    const item = checkItem(userId, itemId);
+    const item = await checkItem(userId, itemId);
 
     if (updateData.storeCategory) {
-        const storeCategory = await StoreCategory.findOne({storeCategory: updateData.storeCategory, isDeleted: false});
-        if (!storeCategory) {
+        const storeCategory = await StoreCategory.findById(updateData.storeCategory);
+        if (!storeCategory || storeCategory.isDeleted) {
             throw new NotFoundError('Store Category not found', 'storeCategory', storeCategory, 'body');
         }
-        if (storeCategory.store.toString() !== item.store.toString()) {
+        // console.log(storeCategory.store);
+        // console.log(item.store);
+        if (storeCategory.store.toString() !== item.store._id.toString()) {
             throw new UnauthorizedError('Unauthorized User', 'user', userId, 'header');
         }
     }
@@ -112,7 +114,7 @@ const updateItemInInventory = async (userId, itemId, updateData) => {
 };
 
 const deleteItemFromInventory = async (userId, itemId) => {
-    const item = checkItem(userId, itemId);
+    const item = await checkItem(userId, itemId);
 
     await Store.findByIdAndUpdate(item.store, {$pull: {inventory: itemId}});
     // Remove the item

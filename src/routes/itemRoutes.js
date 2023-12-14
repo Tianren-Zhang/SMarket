@@ -78,7 +78,7 @@ router.put('/:itemId',
     checkMerchantRole,
     body('storyCategory').optional().isMongoId().withMessage('Invalid category ID.'),
     checkItemExists,
-    body('images').optional().isURL().withMessage('Image must be a valid URL.'),
+    body('images.*.url').optional().isURL().withMessage('Image must be a valid URL.'),
     validateAll,
     itemController.updateItem
 );

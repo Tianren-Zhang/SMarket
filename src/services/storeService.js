@@ -137,7 +137,7 @@ const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategor
 
 const getStoreCategoryById = async (storeId, categoryId) => {
     const store = await Store.findById(storeId);
-    const storeCategory = await StoreCategory.findById(categoryId).select('-isDeleted');
+    const storeCategory = await StoreCategory.findById(categoryId);//.select('-isDeleted');
 
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
@@ -168,7 +168,7 @@ const deleteStoreCategory = async (userId, storeId, categoryId) => {
         await parent.save();
     }
 
-    // Optionally handle subcategories of the deleted category
+    await Item.updateMany({storeCategory: categoryId}, {$set: {storeCategory: null}});
 
     storeCategory.isDeleted = true;
     await storeCategory.save();

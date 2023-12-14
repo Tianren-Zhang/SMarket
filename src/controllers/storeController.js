@@ -17,9 +17,7 @@ exports.getStoreById = async (req, res, next) => {
         const store = await storeService.getStoreById(req.params.storeId)
         res.json(store);
     } catch (err) {
-        if (err.kind === 'ObjectId') {
-            return res.status(404).json({msg: 'Store not found'});
-        }
+
         console.error(err.message);
         next(err);
     }
@@ -39,9 +37,6 @@ exports.createStore = async (req, res, next) => {
 exports.updateStore = async (req, res, next) => {
     try {
         const updatedStore = await storeService.updateStore(req.params.storeId, req.user.id, req.body);
-        if (!updatedStore) {
-            return res.status(404).json({msg: 'Store not found'});
-        }
         res.json(updatedStore);
     } catch (err) {
         console.error(err.message);

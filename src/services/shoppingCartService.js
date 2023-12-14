@@ -36,7 +36,7 @@ const getUserCart = async (userId) => {
 
 // Update the quantity of an item in the cart
 const updateCartItem = async (itemId, userId, quantity) => {
-    const {user, item, cart} = checkItem(userId, itemId);
+    const {user, item, cart} = await checkItem(userId, itemId);
 
     // Find the item and update the quantity
     const itemIndex = cart.items.findIndex(item => item.item.toString() === itemId);
@@ -51,7 +51,7 @@ const updateCartItem = async (itemId, userId, quantity) => {
 
 // Remove an item from the cart
 const removeItemFromCart = async (itemId, userId) => {
-    const {user, item, cart} = checkItem(userId, itemId);
+    const {user, item, cart} = await checkItem(userId, itemId);
 
     // Remove the item from the cart
     cart.items = cart.items.filter(item => item.item.toString() !== itemId);
