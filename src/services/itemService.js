@@ -23,7 +23,7 @@ const getItemById = async (itemId) => {
 const searchByQuery = async (query) => {
     const matchQuery = {};
     const sortQuery = {};
-    const limit = parseInt(query.limit);
+    const limit = parseInt(query.limit, 10) || 10;
     const page = parseInt(query.page) || 1;
     const skip = (page - 1) * limit;
 
@@ -35,11 +35,16 @@ const searchByQuery = async (query) => {
         matchQuery.$text = {$search: query.keyword, $caseSensitive: false};
     }
 
-    if (query.minPrice && query.maxPrice) {
-        matchQuery.price = {
-            $gte: parseFloat(query.minPrice),
-            $lte: parseFloat(query.maxPrice)
-        };
+    if (query.minPrice || query.maxPrice) {
+        matchQuery.price = {};
+
+        if (query.minPrice) {
+            matchQuery.price.$gte = parseFloat(query.minPrice);
+        }
+
+        if (query.maxPrice) {
+            matchQuery.price.$lte = parseFloat(query.maxPrice);
+        }
     }
 
     if (query.minRating) {

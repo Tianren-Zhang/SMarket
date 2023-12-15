@@ -84,7 +84,7 @@ const ItemSchema = new Schema({
 
 }, {timestamps: true});
 
-ItemSchema.index({name: 'text', description: 'text'});
+ItemSchema.index({name: 'text', description: 'text'}, {weights: {name: 10, description: 5}, background: true});
 
 module.exports = mongoose.model('Item', ItemSchema);
 

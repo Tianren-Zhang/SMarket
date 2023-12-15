@@ -34,6 +34,13 @@ router.get('/',
     itemController.getAllItems
 );
 
+// @route   GET api/items/search
+// @desc    Searcg an item based on query
+// @access  Public
+router.get('/search',
+    itemController.searchByQuery
+);
+
 // @route   GET api/items/:itemId
 // @desc    Get an item based on ID
 // @access  Public
@@ -41,10 +48,6 @@ router.get('/:itemId',
     itemIdValidationRules,
     validateAll,
     itemController.getItemById
-);
-
-router.get('/search',
-    itemController.searchByQuery
 );
 
 
