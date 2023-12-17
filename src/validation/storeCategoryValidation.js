@@ -17,4 +17,4 @@ const validateStoreCategory = async (storeCategoryId, storeId) => {
 module.exports = {
     validateStoreCategory,
 
-}
+};

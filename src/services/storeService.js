@@ -2,22 +2,22 @@ const UnauthorizedError = require('../exceptions/UnauthorizedError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const AlreadyExistsError = require('../exceptions/AlreadyExistsError');
 const StoreCategory = require('../models/StoreCategory');
+const StoreRepository = require('../repository/storeRepository');
 const Store = require('../models/Store');
 const Item = require('../models/Item');
 const User = require("../models/User");
 
 const getStores = async () => {
-    return Store.find().populate('owner', ['username', 'email']);//.select('-isDeleted');
-
+    return await StoreRepository.getAllStores();
 }
 
 const getStoreById = async (storeId) => {
-    const store = await Store.findById(storeId).populate('owner', ['username', 'email']);//.select('-isDeleted');
+    const store = await StoreRepository.findStoreById(storeId);
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
     }
     return store;
-}
+};
 
 const createStore = async (ownerId, storeData) => {
     const owner = await User.findById(ownerId).populate('userRole');
@@ -53,7 +53,6 @@ const getStoreInfo = async (storeId) => {
     }
     return store;
 };
-
 
 const deleteStore = async (storeId, userId) => {
     await validateStoreId(userId, storeId);
@@ -99,7 +98,7 @@ const createStoreCategory = async (userId, storeId, storeCategoryData) => {
     const storeCategoryResponse = newCategory.toObject(); // Convert to a regular object
     delete storeCategoryResponse.isDeleted;
     return storeCategoryResponse;
-}
+};
 
 const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategoryData) => {
     await validateStoreId(userId, storeId);
@@ -132,8 +131,7 @@ const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategor
 
     await storeCategory.save();
     return storeCategory;
-}
-
+};
 
 const getStoreCategoryById = async (storeId, categoryId) => {
     const store = await Store.findById(storeId);
@@ -146,7 +144,7 @@ const getStoreCategoryById = async (storeId, categoryId) => {
         throw new NotFoundError('Store category not found', 'categoryId', categoryId, 'params');
     }
     return storeCategory;
-}
+};
 
 const deleteStoreCategory = async (userId, storeId, categoryId) => {
     await validateStoreId(userId, storeId);
@@ -172,8 +170,7 @@ const deleteStoreCategory = async (userId, storeId, categoryId) => {
 
     storeCategory.isDeleted = true;
     await storeCategory.save();
-}
-
+};
 
 async function validateStoreId(userId, storeId) {
     const store = await Store.findById(storeId);

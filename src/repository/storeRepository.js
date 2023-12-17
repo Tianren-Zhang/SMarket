@@ -2,8 +2,12 @@ const Store = require('../models/Store');
 const NotFoundError = require("../exceptions/NotFoundError");
 const UnauthorizedError = require("../exceptions/UnauthorizedError");
 
+const getAllStores = async () => {
+    return Store.find().populate('owner', ['username', 'email']);
+};
+
 const findStoreById = async (storeId) => {
-    return Store.findById(storeId);
+    return Store.findById(storeId).populate('owner', ['username', 'email']);
 };
 
 const addToInventory = async (storeId, item, existingStore = null) => {
@@ -21,6 +25,7 @@ const removeFromInventory = async (storeId, itemId) => {
 };
 
 module.exports = {
+    getAllStores,
     findStoreById,
     addToInventory,
     removeFromInventory,
