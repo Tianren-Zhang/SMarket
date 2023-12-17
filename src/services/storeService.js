@@ -2,28 +2,27 @@ const UnauthorizedError = require('../exceptions/UnauthorizedError');
 const NotFoundError = require('../exceptions/NotFoundError');
 const AlreadyExistsError = require('../exceptions/AlreadyExistsError');
 const StoreCategory = require('../models/StoreCategory');
-const StoreRepository = require('../repository/storeRepository');
+const storeRepository = require('../repository/storeRepository');
+const userRepository = require('../repository/userRepository');
+const storeCategoryRepository = require('../repository/storeCategoryRepository');
+const storeValidation = require('../validation/storeValidation');
+const storeCategoryValidation = require('../validation/storeCategoryValidation');
 const Store = require('../models/Store');
 const Item = require('../models/Item');
 const User = require("../models/User");
 
 const getStores = async () => {
-    return await StoreRepository.getAllStores();
+    return await storeRepository.getAllStores();
 }
 
 const getStoreById = async (storeId) => {
-    const store = await StoreRepository.findStoreById(storeId);
-    if (!store || store.isDeleted) {
-        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
-    }
-    return store;
+    return await storeRepository.findStoreById(storeId);
 };
 
 const createStore = async (ownerId, storeData) => {
-    const owner = await User.findById(ownerId).populate('userRole');
+    const owner = await userRepository.findUserById(ownerId);
 
-    const store = new Store({owner: ownerId, storeCategories: [], ...storeData});
-    await store.save();
+    const store = storeRepository.createStore(owner, storeData);
 
     owner.store.push(store._id);
     await owner.save();
@@ -34,57 +33,28 @@ const createStore = async (ownerId, storeData) => {
 };
 
 const updateStore = async (storeId, userId, updateData) => {
-    const store = await validateStoreId(userId, storeId);
-
-    return Store.findOneAndUpdate(
-        {owner: store.owner},
-        {$set: updateData},
-        {new: true, upsert: true}
-    ).populate('owner', ['username', 'email']).select('-isDeleted');
+    await storeValidation.validateStoreAndOwner(storeId, userId);
+    return storeRepository.updateStore(storeId, updateData);
 };
 
 const getStoreInfo = async (storeId) => {
-    const store = await Store.findById(storeId)
-        .populate('inventory.item')
-        .populate('owner', ['username', 'email'])
-        .select('-isDeleted');
-    if (!store || store.isDeleted) {
-        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
-    }
-    return store;
+    return await storeRepository.getStoreInfo(storeId);
 };
 
 const deleteStore = async (storeId, userId) => {
-    await validateStoreId(userId, storeId);
+    await storeValidation.validateStoreAndOwner(storeId, userId);
     // console.log(store.owner);
-    await Store.findByIdAndUpdate(storeId, {isDeleted: true});
-
-    // Optionally, also soft delete all items associated with the store
-    await Item.updateMany({store: storeId}, {isDeleted: true});
+    await storeRepository.deleteStore(storeId);
 };
 
 const createStoreCategory = async (userId, storeId, storeCategoryData) => {
-    const store = await validateStoreId(userId, storeId);
-    const {name, parentCategory, description, images, featured, tags, customFields} = storeCategoryData;
+    const store = await storeValidation.validateStoreAndOwner(storeId, userId);
+    const newStoreCategory = storeCategoryRepository.createStoreCategory(store, storeCategoryData);
 
-    const newCategory = new StoreCategory({
-        name,
-        store: storeId,
-        parentCategory,
-        subCategories: [],
-        description,
-        images,
-        featured,
-        tags,
-        customFields
-    });
-
-    await newCategory.save();
-
-    if (parentCategory) {
-        const parent = await StoreCategory.findById(parentCategory);
+    if (storeCategoryData.parentCategory) {
+        const parent = await storeCategoryRepository.findStoreCategoryById(storeCategoryData.parentCategory);
         if (parent) {
-            parent.subCategories.push(newCategory._id);
+            parent.subCategories.push(newStoreCategory._id);
             await parent.save();
         }
     }
@@ -92,67 +62,35 @@ const createStoreCategory = async (userId, storeId, storeCategoryData) => {
     if (!store.storeCategories) {
         store.storeCategories = [];
     }
-    store.storeCategories.push(newCategory._id);
+    store.storeCategories.push(newStoreCategory._id);
     await store.save();
 
-    const storeCategoryResponse = newCategory.toObject(); // Convert to a regular object
-    delete storeCategoryResponse.isDeleted;
-    return storeCategoryResponse;
+
+    delete newStoreCategory.isDeleted;
+    return newStoreCategory;
 };
 
 const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategoryData) => {
-    await validateStoreId(userId, storeId);
+    await storeValidation.validateStoreAndOwner(storeId, userId);
 
-    const storeCategory = await StoreCategory.findById(categoryId);
+    const storeCategory = await storeCategoryRepository.findStoreCategoryById(categoryId);
     if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
         throw new NotFoundError('Store category not found', 'storeId', storeId, 'params');
     }
 
-    const oldParentId = storeCategory.parentCategory;
-    for (let key in storeCategoryData) {
-        storeCategory[key] = storeCategoryData[key];
-    }
-
-    if (oldParentId === null || oldParentId !== storeCategory.parentCategory) {
-        // Remove from old parent's subcategories
-        if (oldParentId) {
-            const oldParent = await StoreCategory.findById(oldParentId);
-            oldParent.subCategories.pull(storeCategory._id);
-            await oldParent.save();
-        }
-
-        // Add to new parent's subcategories
-        if (storeCategory.parentCategory) {
-            const newParent = await StoreCategory.findById(storeCategory.parentCategory);
-            newParent.subCategories.push(storeCategory._id);
-            await newParent.save();
-        }
-    }
-
-    await storeCategory.save();
-    return storeCategory;
+    const storeCategoryUpdate = await storeCategoryRepository.updateStoreCategory(storeCategory, storeCategoryData);
+    delete storeCategoryUpdate.isDeleted;
+    return storeCategoryUpdate;
 };
 
 const getStoreCategoryById = async (storeId, categoryId) => {
-    const store = await Store.findById(storeId);
-    const storeCategory = await StoreCategory.findById(categoryId);//.select('-isDeleted');
-
-    if (!store || store.isDeleted) {
-        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
-    }
-    if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
-        throw new NotFoundError('Store category not found', 'categoryId', categoryId, 'params');
-    }
-    return storeCategory;
+    return await storeCategoryValidation.validateStoreCategory(categoryId, storeId);
 };
 
 const deleteStoreCategory = async (userId, storeId, categoryId) => {
-    await validateStoreId(userId, storeId);
+    await storeValidation.validateStoreAndOwner(storeId, userId);
 
-    const storeCategory = await StoreCategory.findById(categoryId);
-    if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
-        throw new NotFoundError('Store category not found', 'categoryId', categoryId, 'params');
-    }
+    const storeCategory = await storeCategoryValidation.validateStoreCategory(categoryId, storeId);
 
     // Restrict Deletion If Subcategories Exist
     if (storeCategory.subCategories.length > 0) {
@@ -172,16 +110,6 @@ const deleteStoreCategory = async (userId, storeId, categoryId) => {
     await storeCategory.save();
 };
 
-async function validateStoreId(userId, storeId) {
-    const store = await Store.findById(storeId);
-    if (!store || store.isDeleted) {
-        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
-    }
-    if (store.owner.toString() !== userId) {
-        throw new UnauthorizedError('Unauthorized User', 'userId', userId, 'header');
-    }
-    return store;
-}
 
 module.exports = {
     createStore,
