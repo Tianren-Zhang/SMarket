@@ -29,7 +29,7 @@ const getStoreInfo = async (storeId) => {
 const createStore = async (ownerId, storeData) => {
     const store = new Store({owner: ownerId, storeCategories: [], ...storeData});
     await store.save();
-    return store;
+    return store.toObject();
 };
 
 const updateStore = async (storeId, updateData) => {

@@ -4,13 +4,14 @@ const UnauthorizedError = require("../exceptions/UnauthorizedError");
 const storeRepository = require("../repository/storeRepository");
 const validateStoreCategory = async (storeCategoryId, storeId) => {
     const store = await storeRepository.findStoreById(storeId);
-    const storeCategory = await storeCategoryRepository.findStoreCategoryById(categoryId);
+    const storeCategory = await storeCategoryRepository.findStoreCategoryById(storeCategoryId);
 
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
     }
-    if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
-        throw new NotFoundError('Store category not found', 'categoryId', categoryId, 'params');
+
+    if (!storeCategory || storeCategory.store._id.toString() !== storeId || storeCategory.isDeleted) {
+        throw new NotFoundError('Store category not found', 'categoryId', storeCategoryId, 'params');
     }
     return storeCategory;
 };

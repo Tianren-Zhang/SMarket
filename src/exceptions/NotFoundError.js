@@ -3,7 +3,7 @@ class NotFoundError extends Error {
         super(message);
         this.name = "NotFoundError";
         this.status = 404;
-        this.type = field;
+        this.type = "NotFoundError";
         this.field = field;
         this.value = value;
         this.location = location;

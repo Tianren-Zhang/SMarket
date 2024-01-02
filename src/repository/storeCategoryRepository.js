@@ -1,7 +1,7 @@
 const StoreCategory = require('../models/StoreCategory');
-
+const storeValidation = require('../validation/storeValidation');
 const findStoreCategoryById = async (storeCategoryId) => {
-    return StoreCategory.findById(storeCategoryId).populate('store');
+    return StoreCategory.findById(storeCategoryId);//.populate('store');
 };
 
 const createStoreCategory = async (storeId, storeCategoryData) => {
@@ -18,20 +18,25 @@ const createStoreCategory = async (storeId, storeCategoryData) => {
         tags,
         customFields
     });
+    console.log(newStoreCategory);
     await newStoreCategory.save();
     return newStoreCategory.toObject();
 };
 
-const updateStoreCategory = async (storeCategory, updateData) => {
+const updateStoreCategory = async (storeCategory, updateData, userId) => {
     const oldParentId = storeCategory.parentCategory;
-    for (let key in storeCategoryData) {
-        storeCategory[key] = storeCategoryData[key];
+    if (updateData.parentCategory) {
+        await storeValidation.validateStoreAndOwner(updateData.parentCategory, userId);
     }
-
+    for (let key in updateData) {
+        storeCategory[key] = updateData[key];
+    }
+    console.log(storeCategory.parentCategory)
     if (oldParentId === null || oldParentId !== storeCategory.parentCategory) {
         // Remove from old parent's subcategories
         if (oldParentId) {
             const oldParent = await StoreCategory.findById(oldParentId);
+            console.log(oldParent);
             oldParent.subCategories.pull(storeCategory._id);
             await oldParent.save();
         }
@@ -39,7 +44,8 @@ const updateStoreCategory = async (storeCategory, updateData) => {
         // Add to new parent's subcategories
         if (storeCategory.parentCategory) {
             const newParent = await StoreCategory.findById(storeCategory.parentCategory);
-            newParent.subCategories.push(storeCategory._id);
+            console.log(newParent);
+            newParent.subCategories.push(storeCategory._d);
             await newParent.save();
         }
     }

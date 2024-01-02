@@ -27,9 +27,8 @@ const createStore = async (ownerId, storeData) => {
     owner.store.push(store._id);
     await owner.save();
 
-    const storeResponse = store.toObject(); // Convert to a regular object
-    delete storeResponse.isDeleted;
-    return storeResponse;
+    delete store.isDeleted;
+    return store;
 };
 
 const updateStore = async (storeId, userId, updateData) => {
@@ -49,8 +48,8 @@ const deleteStore = async (storeId, userId) => {
 
 const createStoreCategory = async (userId, storeId, storeCategoryData) => {
     const store = await storeValidation.validateStoreAndOwner(storeId, userId);
-    const newStoreCategory = storeCategoryRepository.createStoreCategory(store, storeCategoryData);
-
+    const newStoreCategory = await storeCategoryRepository.createStoreCategory(storeId, storeCategoryData);
+    console.log(newStoreCategory);
     if (storeCategoryData.parentCategory) {
         const parent = await storeCategoryRepository.findStoreCategoryById(storeCategoryData.parentCategory);
         if (parent) {
@@ -62,6 +61,7 @@ const createStoreCategory = async (userId, storeId, storeCategoryData) => {
     if (!store.storeCategories) {
         store.storeCategories = [];
     }
+    console.log(newStoreCategory);
     store.storeCategories.push(newStoreCategory._id);
     await store.save();
 
@@ -74,8 +74,8 @@ const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategor
     await storeValidation.validateStoreAndOwner(storeId, userId);
 
     const storeCategory = await storeCategoryRepository.findStoreCategoryById(categoryId);
-    if (!storeCategory || storeCategory.store.toString() !== storeId || storeCategory.isDeleted) {
-        throw new NotFoundError('Store category not found', 'storeId', storeId, 'params');
+    if (!storeCategory || storeCategory.store._id.toString() !== storeId || storeCategory.isDeleted) {
+        throw new NotFoundError('Store category not found', 'storeCategoryId', categoryId, 'params');
     }
 
     const storeCategoryUpdate = await storeCategoryRepository.updateStoreCategory(storeCategory, storeCategoryData);
@@ -84,7 +84,7 @@ const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategor
 };
 
 const getStoreCategoryById = async (storeId, categoryId) => {
-    return await storeCategoryValidation.validateStoreCategory(categoryId, storeId);
+    return await storeCategoryValidation.validateStoreCategory(categoryId, storeId, userId);
 };
 
 const deleteStoreCategory = async (userId, storeId, categoryId) => {
