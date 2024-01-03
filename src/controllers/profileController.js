@@ -44,7 +44,7 @@ exports.addAddress = async (req, res, next) => {
 
 exports.updateAddress = async (req, res, next) => {
     try {
-        console.log(req.params.addressId);
+        // console.log(req.params.addressId);
         const profile = await profileService.updateAddressById(req.user.id, req.params.addressId, req.body);
         res.json(profile);
     } catch (err) {

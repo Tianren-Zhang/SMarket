@@ -8,10 +8,11 @@ const getAllStores = async () => {
 };
 
 const findStoreById = async (storeId) => {
-    return Store.findById(storeId).populate('owner', ['username', 'email']);
+    const store = Store.findById(storeId).populate('owner', ['username', 'email']);
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
     }
+    return store;
 };
 
 const getStoreInfo = async (storeId) => {

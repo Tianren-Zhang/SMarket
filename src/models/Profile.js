@@ -8,10 +8,11 @@ const ProfileSchema = new Schema({
         required: true,
     },
 
-    addresses: [{
-        type: Schema.Types.ObjectId,
-        ref: 'UserAddress'
-    }],
+    addresses: {
+        type: [Schema.Types.ObjectId],
+        ref: 'UserAddress',
+        default: []
+    },
 
     firstName: {
         type: String,
@@ -43,10 +44,10 @@ const ProfileSchema = new Schema({
     dateOfBirth: Date,
 
     socialMedia: {
-        facebook: String,
-        twitter: String,
-        instagram: String
-        // ... other platforms ...
+        facebook: {type: String, default: ''},
+        twitter: {type: String, default: ''},
+        instagram: {type: String, default: ''},
+        // ... other platforms with default empty string ...
     },
 
     isDeleted: {
