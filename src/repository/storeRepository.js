@@ -30,6 +30,7 @@ const getStoreInfo = async (storeId) => {
 const createStore = async (ownerId, storeData) => {
     const store = new Store({owner: ownerId, storeCategories: [], ...storeData});
     await store.save();
+    console.log(store);
     return store.toObject();
 };
 

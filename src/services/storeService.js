@@ -16,18 +16,23 @@ const getStores = async () => {
 }
 
 const getStoreById = async (storeId) => {
-    return await storeRepository.findStoreById(storeId);
+    const store = await storeRepository.findStoreById(storeId);
+    if (!store || store.isDeleted) {
+        throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
+    }
+    return store;
 };
 
 const createStore = async (ownerId, storeData) => {
     const owner = await userRepository.findUserById(ownerId);
 
-    const store = storeRepository.createStore(owner, storeData);
-
+    const store = await storeRepository.createStore(owner, storeData);
+    console.log(store);
     owner.store.push(store._id);
     await owner.save();
 
     delete store.isDeleted;
+    store.owner.store.push(store._id);
     return store;
 };
 
@@ -84,7 +89,7 @@ const updateStoreCategoryById = async (userId, storeId, categoryId, storeCategor
 };
 
 const getStoreCategoryById = async (storeId, categoryId) => {
-    return await storeCategoryValidation.validateStoreCategory(categoryId, storeId, userId);
+    return await storeCategoryValidation.validateStoreCategory(categoryId, storeId);
 };
 
 const deleteStoreCategory = async (userId, storeId, categoryId) => {
