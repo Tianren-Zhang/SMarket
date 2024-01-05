@@ -8,7 +8,7 @@ const getAllStores = async () => {
 };
 
 const findStoreById = async (storeId) => {
-    const store = Store.findById(storeId).populate('owner', ['username', 'email']);
+    const store = Store.findById(storeId);
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
     }
@@ -30,7 +30,7 @@ const getStoreInfo = async (storeId) => {
 const createStore = async (ownerId, storeData) => {
     const store = new Store({owner: ownerId, storeCategories: [], ...storeData});
     await store.save();
-    console.log(store);
+
     return store.toObject();
 };
 

@@ -4,7 +4,7 @@ const checkCategoryExists = async (req, res, next) => {
     try {
         const categoryId = req.body.category; // Assuming the category ID is sent in the request body
         if (!categoryId) {
-            return res.status(400).json({msg: 'Category ID is required.'});
+            next();
         }
 
         const category = await Category.findById(categoryId);

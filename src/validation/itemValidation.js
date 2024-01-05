@@ -24,6 +24,7 @@ const validateStoreAndOwner = async (storeId, userId) => {
     if (!store || store.isDeleted) {
         throw new NotFoundError('Store not found', 'storeId', storeId);
     }
+    // console.log(store.owner.toString(), userId);
     if (store.owner.toString() !== userId) {
         throw new UnauthorizedError('User does not have permission', 'user', userId);
     }
