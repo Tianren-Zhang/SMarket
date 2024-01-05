@@ -19,7 +19,7 @@ const login = async ({email, password}) => {
     const payload = {user: {id: user.id}};
 
     if (!process.env.JWT_SECRET) {
-        throw new NotFoundError('JWT Secret is not defined');
+        throw new Error('JWT Secret is not defined');
     }
 
     // Sign the JWT and return the token
