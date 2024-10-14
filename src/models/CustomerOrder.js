@@ -1,48 +1,52 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const CustomerOrderSchema = new Schema({
+const CustomerOrderSchema = new Schema(
+  {
     user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
 
-    individualOrders: [{
+    individualOrders: [
+      {
         type: Schema.Types.ObjectId,
-        ref: 'IndividualOrder'
-    }],
+        ref: 'IndividualOrder',
+      },
+    ],
 
     totalAmount: {
-        type: Number,
+      type: Number,
     },
 
     orderDate: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
 
     shippingAddress: {
-        street: String,
-        city: String,
-        state: String,
-        zipCode: String,
-        country: String
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      country: String,
     },
 
     paymentDetails: {
-        method: String,
-        status: String,
-        transactionId: String
+      method: String,
+      status: String,
+      transactionId: String,
     },
 
     orderConfirmationNumber: String,
 
-
     customerContact: {
-        email: String,
-        phone: String
-    }
-}, {timestamps: true});
+      email: String,
+      phone: String,
+    },
+  },
+  { timestamps: true }
+);
 
 module.exports = mongoose.model('CustomerOrder', CustomerOrderSchema);

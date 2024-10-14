@@ -2,36 +2,37 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ItemVariantSchema = new Schema({
-    variantType: String, // e.g., 'Color', 'Storage'
-    variantValue: String // e.g., 'Black', '256GB'
+  variantType: String, // e.g., 'Color', 'Storage'
+  variantValue: String, // e.g., 'Black', '256GB'
 });
 
-const ItemSchema = new Schema({
+const ItemSchema = new Schema(
+  {
     store: {
-        type: Schema.Types.ObjectId,
-        ref: 'Store',
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: 'Store',
+      required: true,
     },
 
     name: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
 
     price: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
     },
 
     category: {
-        type: Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true,
     },
 
     storeCategory: {
-        type: Schema.Types.ObjectId,
-        ref: 'storeCategory',
+      type: Schema.Types.ObjectId,
+      ref: 'storeCategory',
     },
 
     description: String,
@@ -40,17 +41,18 @@ const ItemSchema = new Schema({
     variants: [ItemVariantSchema],
 
     // URLs to images of the item
-    images: [{
+    images: [
+      {
         url: String,
-        altText: String
-    }],
-
+        altText: String,
+      },
+    ],
 
     quantity: {
-        type: Number,
-        required: true,
-        min: [0, 'Quantity cannot be negative'],
-        default: 0,
+      type: Number,
+      required: true,
+      min: [0, 'Quantity cannot be negative'],
+      default: 0,
     },
 
     // sku: {
@@ -60,31 +62,36 @@ const ItemSchema = new Schema({
     // },
 
     ratings: {
-        average: {type: Number, default: 0},
-        count: {type: Number, default: 0}
+      average: { type: Number, default: 0 },
+      count: { type: Number, default: 0 },
     },
 
-    reviews: [{
-        user: {type: Schema.Types.ObjectId, ref: 'User'},
+    reviews: [
+      {
+        user: { type: Schema.Types.ObjectId, ref: 'User' },
         review: String,
         rating: Number,
-        createdAt: {type: Date, default: Date.now}
-    }],
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
 
     //Search Engine Optimization
     seo: {
-        metaTitle: String,
-        metaDescription: String
+      metaTitle: String,
+      metaDescription: String,
     },
 
     isDeleted: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
+  },
+  { timestamps: true }
+);
 
-}, {timestamps: true});
-
-ItemSchema.index({name: 'text', description: 'text'}, {weights: {name: 10, description: 5}, background: true});
+ItemSchema.index(
+  { name: 'text', description: 'text' },
+  { weights: { name: 10, description: 5 }, background: true }
+);
 
 module.exports = mongoose.model('Item', ItemSchema);
-

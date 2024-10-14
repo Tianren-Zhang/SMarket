@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 const Schema = mongoose.Schema;
 
 const userAddressSchema = new Schema({
@@ -31,6 +32,17 @@ const userAddressSchema = new Schema({
     country: {
         type: String,
         required: true
+    },
+
+    mobilePhone: {
+        type: String,
+        required: [true, 'User phone number is required'],
+        validate: {
+            validator: function (value) {
+                return validator.isMobilePhone(value, 'any', {strictMode: false});
+            },
+            message: props => `${props.value} is not a valid phone number!`
+        }
     },
 
     isPrimary: {

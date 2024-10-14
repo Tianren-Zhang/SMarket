@@ -1,26 +1,29 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const StoreSchema = new Schema({
+const StoreSchema = new Schema(
+  {
     owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
 
     storeName: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
 
-    storeCategories: [{
+    storeCategories: [
+      {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'StoreCategory',
-    }],
+      },
+    ],
 
     categories: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
     },
 
     description: String,
@@ -30,57 +33,62 @@ const StoreSchema = new Schema({
     bannerImage: String, // URL to the store's banner image
 
     address: {
-        state: String,
-        country: String
+      state: String,
+      country: String,
     },
 
     contact: {
-        email: String,
-        phone: String
+      email: String,
+      phone: String,
     },
 
     socialMedia: {
-        facebook: String,
-        twitter: String,
-        instagram: String
+      facebook: String,
+      twitter: String,
+      instagram: String,
     },
 
     averageRating: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
 
-    ratings: [{
+    ratings: [
+      {
         rating: Number,
-        reviewer: {type: Schema.Types.ObjectId, ref: 'User'},
+        reviewer: { type: Schema.Types.ObjectId, ref: 'User' },
         review: String,
-        createdAt: {type: Date, default: Date.now}
-    }],
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
 
     operationalHours: {
-        open: String,
-        close: String,
-        // WIll using subdocuments
+      open: String,
+      close: String,
+      // WIll using subdocuments
     },
 
-    inventory: [{
+    inventory: [
+      {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Item'
-    }],
+        ref: 'Item',
+      },
+    ],
 
     status: {
-        type: String,
-        enum: ['active', 'maintenance', 'closed'],
-        default: 'active'
+      type: String,
+      enum: ['active', 'maintenance', 'closed'],
+      default: 'active',
     },
 
     isDeleted: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false,
     },
+  },
+  { timestamps: true }
+);
 
-}, {timestamps: true});
-
-StoreSchema.index({name: 'text', description: 'text'});
+StoreSchema.index({ name: 'text', description: 'text' });
 
 module.exports = mongoose.model('Store', StoreSchema);

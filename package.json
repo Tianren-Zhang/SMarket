@@ -19,6 +19,7 @@
     "mongoose": "^8.0.0",
     "morgan": "~1.9.1",
     "openai": "^4.17.4",
-    "pug": "2.0.0-beta11"
+    "pug": "2.0.0-beta11",
+    "validator": "^13.11.0"
   }
 }
