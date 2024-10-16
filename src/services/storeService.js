@@ -32,7 +32,7 @@ const createStore = async (ownerId, storeData) => {
   await owner.save();
 
   delete store.isDeleted;
-  store.owner.store.push(store._id);
+  // store.owner.store.push(store._id);
   return store;
 };
 

@@ -8,7 +8,7 @@ const getAllStores = async () => {
 };
 
 const findStoreById = async (storeId) => {
-  const store = Store.findById(storeId);
+  const store = await Store.findById(storeId);
   if (!store || store.isDeleted) {
     throw new NotFoundError('Store not found', 'storeId', storeId, 'params');
   }

@@ -23,6 +23,11 @@ router.post(
 // @route   GET api/auth
 // @desc    Get information of the user
 // @access  Private
-router.get('/', authMiddleware, validateAll, authController.getInfo);
+router.get(
+  '/', 
+  authMiddleware, 
+  validateAll, 
+  authController.getInfo
+);
 
 module.exports = router;

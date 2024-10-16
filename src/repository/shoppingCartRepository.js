@@ -1,4 +1,5 @@
 const ShoppingCart = require('../models/ShoppingCart');
+const NotFoundError = require('../exceptions/NotFoundError');
 
 const getCartByUserId = async (userId) => {
   const cart = await ShoppingCart.findOne({ user: userId }).populate(

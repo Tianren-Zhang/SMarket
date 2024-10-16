@@ -58,7 +58,7 @@ const updateStoreCategory = async (storeCategory, updateData, userId) => {
         storeCategory.parentCategory
       );
       console.log(newParent);
-      newParent.subCategories.push(storeCategory._d);
+      newParent.subCategories.push(storeCategory._id);
       await newParent.save();
     }
   }

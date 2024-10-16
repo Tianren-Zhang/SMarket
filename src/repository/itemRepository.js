@@ -36,7 +36,7 @@ const updateItem = async (itemId, updateData) => {
 };
 
 const deleteItem = async (itemId, existingItem = null) => {
-  const item = existingItem ? existingItem : await this.findById(itemId);
+  const item = existingItem ? existingItem : await this.findItemById(itemId);
   item.isDeleted = true;
   await item.save();
   return item;

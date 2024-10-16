@@ -9,6 +9,13 @@ const Profile = require('../models/Profile');
 const UserAddress = require('../models/UserAddress');
 const User = require('../models/User');
 
+/**
+ * Creates a new profile for the specified user.
+ * @param {String} userId - The ID of the user.
+ * @param {Object} profileData - The profile data to create.
+ * @returns {Object} The created profile.
+ * @throws {AlreadyExistsError} If the profile already exists.
+ */
 const createProfile = async (userId, profileData) => {
   // Check if the user exists
   const user = await userRepository.findUserById(userId);
@@ -27,7 +34,7 @@ const createProfile = async (userId, profileData) => {
   }
 
   // Create and save the profile
-  const profile = profileRepository.createProfile(userId, profileData);
+  const profile = await profileRepository.createProfile(userId, profileData);
   // console.log("profile created");
   user.profile = profile._id;
   await user.save();
@@ -36,22 +43,18 @@ const createProfile = async (userId, profileData) => {
 };
 
 const getProfileByUserId = async (userId) => {
-  const user = await userRepository.findUserById(userId);
+  const { user, profile } = await validateProfile(userId);
   const existingProfile = await Profile.findOne({
     user: userId,
     isDeleted: false,
   })
-    .populate('user', '-password -emailVerified')
     .populate({
       path: 'addresses',
       match: { isDeleted: false },
       select: '-isDeleted',
     })
-    .select('-isDeleted');
-
-  if (!existingProfile) {
-    throw new NotFoundError('Profile not found', 'user', userId, 'header');
-  }
+    .select('-isDeleted')
+    .lean();
 
   if (existingProfile.addresses) {
     existingProfile.addresses = existingProfile.addresses.filter(
@@ -62,6 +65,13 @@ const getProfileByUserId = async (userId) => {
   return existingProfile;
 };
 
+/**
+ * Updates the profile of a user by their user ID.
+ * @param {String} userId - The ID of the user.
+ * @param {Object} profileData - The profile data to update.
+ * @returns {Object} The updated profile.
+ * @throws {NotFoundError} If the profile does not exist.
+ */
 const updateProfileByUserId = async (userId, profileData) => {
   const { user, existingProfile } = await validateProfile(userId);
 
@@ -88,6 +98,13 @@ const updateProfileByUserId = async (userId, profileData) => {
   return await profileRepository.updateProfileById(userId, profileData);
 };
 
+/**
+ * Adds an address to the profile of a user by their user ID.
+ * @param {String} userId - The ID of the user.
+ * @param {Object} addressData - The address data to add.
+ * @returns {Object} The updated profile.
+ * @throws {NotFoundError} If the profile does not exist.
+ */
 const addAddress = async (userId, addressData) => {
   const { user, profile } = await validateProfile(userId);
   const address = await userAddressRepository.createUserAddress(
@@ -133,6 +150,8 @@ const deleteAddressById = async (userId, addressId) => {
   }
   await userAddressRepository.deleteUserAddressById(addressId);
   await profile.save();
+
+  return profile;
 };
 
 const deleteProfileByUserId = async (userId) => {
