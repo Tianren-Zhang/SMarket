@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 // const chatGPTRoutes = require('./routes/chatGPTRoutes');
-const userRoutes = require('./userRoutes');
-const authRoutes = require('./authRoutes');
-const profileRoutes = require('./profileRoutes');
-const storeRoutes = require('./storeRoutes');
-const itemRoutes = require('./itemRoutes');
-const shoppingCartRoutes = require('./shoppingCartRoutes');
-const orderRoutes = require('./orderRoutes');
+const userRoutes = require('../user/routes/userRoutes');
+const authRoutes = require('../auth/routes/authRoutes');
+const profileRoutes = require('../profile/routes/profileRoutes');
+const storeRoutes = require('../store/routes/storeRoutes');
+const itemRoutes = require('../item/routes/itemRoutes');
+const shoppingCartRoutes = require('../shoppingCart/routes/shoppingCartRoutes');
+const orderRoutes = require('../order/routes/orderRoutes');
 
 const apiVersion = '/api/v1';
 
