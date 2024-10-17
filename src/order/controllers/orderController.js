@@ -4,7 +4,7 @@ const orderService = require('../services/orderService');
 exports.getAllCustomerOrders = async (req, res, next) => {
   try {
     const orders = await orderService.getAllCustomerOrders();
-    res.status(201).json(orders);
+    res.status(200).json(orders);
   } catch (err) {
     console.error(err.message);
     next(err);
@@ -14,7 +14,7 @@ exports.getAllCustomerOrders = async (req, res, next) => {
 exports.getAllIndividualOrders = async (req, res, next) => {
   try {
     const orders = await orderService.getAllIndividualOrders();
-    res.status(201).json(orders);
+    res.status(200).json(orders);
   } catch (err) {
     console.error(err.message);
     next(err);
@@ -35,7 +35,7 @@ exports.placeOrder = async (req, res, next) => {
 exports.getOrderHistory = async (req, res, next) => {
   try {
     const orders = await orderService.getOrderHistory(req.user.id);
-    res.status(201).json(orders);
+    res.status(200).json(orders);
   } catch (err) {
     console.error(err.message);
     next(err);

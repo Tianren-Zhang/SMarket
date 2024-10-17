@@ -1,4 +1,4 @@
-const Category = require('../models/Category');
+const StoreCategory = require('../models/StoreCategory');
 
 const checkCategoryExists = async (req, res, next) => {
   try {
@@ -6,8 +6,8 @@ const checkCategoryExists = async (req, res, next) => {
     if (!categoryId) {
       next();
     }
-
-    const category = await Category.findById(categoryId);
+    console.log(categoryId);
+    const category = await StoreCategory.findById(categoryId);
     if (!category) {
       return res.status(404).json({ msg: 'Category not found.' });
     }
